@@ -22,10 +22,48 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-mod nes;
-use crate::nes::Nes;
+pub mod architecture;
+pub mod controllers;
+pub mod mappers;
 
-fn main() {
-    let mut nes = Nes::new();
-    nes.run();
+use crate::nes::architecture::memory::Memory;
+
+pub struct Nes {
+    // cpu: Cpu,
+    // apu: Apu,
+    memory: Memory
+    // ppu: Ppu,
+    // controllers: Controllers
+}
+
+impl Nes {
+    // Constructor for Nes
+    pub fn new() -> Self {
+
+        // Initialize the memory with 8KB
+        let memory_size: usize = 8192000;
+        let memory_result:Result<Memory, usize> = Memory::new(memory_size);
+        let memory: Memory;
+        match memory_result {
+            Ok(result) => {
+                memory = result;
+            }
+            Err(_) =>{
+                panic!("Unable to initialize memory");
+            }
+        }
+
+        // Construct the Nes
+        return Nes {
+            memory
+        }
+    }
+
+    pub fn run (&mut self){
+        let memory_size = self.memory.get_size();
+        for i in 0..memory_size{
+            self.memory.write(i, [1].to_vec());
+        }
+        print!("{:?}", self.memory.read(0, memory_size));
+    }
 }
