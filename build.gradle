@@ -23,14 +23,78 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 plugins {
-    // tbd
+    id 'maven-publish'
 }
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
     // tbd
+}
+
+task CargoBuild(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    executable = 'cargo'
+    args = ['build']
+}
+
+task CargoRun(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    executable = 'cargo'
+    args = ['run']
+}
+
+task CargoUpdate(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    executable = 'cargo'
+    args = ['update']
+}
+
+task CargoTest(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    environment "RUST_BACKTRACE", "1"
+    executable = 'cargo'
+    args = ['test']
+}
+
+task CargoBenchmark(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    executable = 'cargo'
+    args = ['benchmark']
+}
+
+task CargoDoc(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    executable = 'cargo'
+    args = ['doc']
+}
+
+task CargoCheck(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    executable = 'cargo'
+    args = ['check']
+}
+
+task build(type: Task){
+    dependsOn(project.tasks.CargoBuild)
+    doFirst{
+        File buildDir = new File('build')
+        if (!buildDir.isDirectory()){
+            buildDir.mkdirs()
+        }
+    }
+}
+
+task clean(type: Task){
+    delete 'build/'
+}
+
+project.tasks.build {
+    dependsOn(project.tasks.CargoBuild)
+}
+
+project.tasks.CargoBuild {
+    dependsOn(project.tasks.CargoTest)
 }
