@@ -100,7 +100,7 @@ mod tests {
 
     // The number of bytes to be used by the test memory
     fn get_test_memory_size() -> usize {
-        return 32;
+        return 8;
     }
 
     // Helper function for the tests to let them grab a Memory instance for testing
@@ -144,6 +144,9 @@ mod tests {
     #[test]
     fn can_write_to_memory() {
 
+        // This test requires at least 5 bytes in memory
+        assert!(get_test_memory_size() > 5);
+
         // Fetch a test instance of memory
         let mut memory: Memory = get_test_memory();
 
@@ -166,5 +169,60 @@ mod tests {
 
         // Assert that the data we read from the memory was the same as the data we wrote
         assert!(clone == actual_data);
+    }
+
+    #[test]
+    fn write_sparsely_populated_data() {
+
+        // This test requires at least 3 bytes in memory
+        assert!(get_test_memory_size() > 3);
+
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // We will write two separate bytes sparsely to the memory
+        let data1: Vec<u8> = [1].to_vec();
+        let data2: Vec<u8> = [2].to_vec();
+
+        // We will write to offset 0 and 2 below, so we expect our data to sandwich an empty at index 1.
+        let expected_data: Vec<u8> = [1, 0, 2].to_vec();
+
+        // Write the two bytes to memory
+        memory.write(0, data1);
+        memory.write(2, data2);
+
+        // Read the 3 bytes sequence
+        let actual_data: Vec<u8> = memory.read(0, 3);
+
+        // Assert that the expected and actual data are the same
+        assert!(expected_data == actual_data);
+    }
+
+    #[test]
+    #[should_panic]
+    fn read_memory_out_of_bounds() {
+
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // Intentionally read from memory out of bounds. This should cause a panic.
+        let _panic: Vec<u8> = memory.read(get_test_memory_size() + 1, 1);
+    }
+
+    #[test]
+    #[should_panic]
+    fn write_memory_out_of_bounds() {
+
+        // This test requires at least 3 bytes in memory
+        assert!(get_test_memory_size() > 5);
+
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // Prepare some test data
+        let expected_data: Vec<u8> = [1, 2, 3].to_vec();
+
+        // Intentionally write to memory out of bounds. This should cause a panic.
+        memory.write(get_test_memory_size() + 1, expected_data);
     }
 }
