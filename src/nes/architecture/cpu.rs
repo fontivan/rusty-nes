@@ -24,7 +24,7 @@
 
 pub struct Cpu {
     accumulator: u8,
-    flag: u8,
+    flags: u8,
     program_counter: u16,
     stack: u8,
     x_index: u8,
@@ -34,25 +34,29 @@ pub struct Cpu {
 impl Cpu{
 
     // Constructor for Cpu
+    // This is done in the "Power Up" state as described by the nesdev wiki
+    // https://wiki.nesdev.com/w/index.php/CPU_power_up_state#At_power-up
     pub fn new() -> Cpu {
         return Cpu {
             accumulator: 0,
-            flag: 0,
-            program_counter: 0,
-            stack: 0,
+            flags: 0,
+            program_counter: 0x34,
+            stack: 0xFD,
             x_index: 0,
             y_index: 0
         }
     }
 
     // Reset the cpu to the starting conditions
+    // This is done in the "After reset" state as described by the nesdev wiki
+    // https://wiki.nesdev.com/w/index.php/CPU_power_up_state#After_reset
     pub fn reset(&mut self){
-        self.accumulator = 0;
-        self.flag = 0;
-        self.program_counter = 0;
-        self.stack = 0;
-        self.x_index = 0;
-        self.y_index = 0;
+
+        // Set I flag high
+        self.flags = self.flags & 0b00000100;
+
+        // Decrement stack by 3
+        self.stack = self.stack - 3;
     }
 
     // Execute a clock cycle on the cpu
