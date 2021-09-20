@@ -25,6 +25,5 @@
 pub mod apu;
 pub mod cartridges;
 pub mod cpu;
-pub mod instructions;
 pub mod memory;
 pub mod ppu;

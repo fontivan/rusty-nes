@@ -22,4 +22,18 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// struct Instructions();
+use crate::nes::instructions::Opcode;
+
+struct Opcode0x77 {}
+
+impl Opcode for Opcode0x77 {
+
+    fn get_name(&mut self) -> &str {
+        return "0x77"
+    }
+    
+    fn decode(&mut self) {
+        print!("TBD")
+    }
+
+}

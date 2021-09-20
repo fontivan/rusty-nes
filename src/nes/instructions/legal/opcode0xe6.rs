@@ -22,42 +22,18 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-pub struct Cpu {
-    accumulator: u8,
-    flag: u8,
-    program_counter: u16,
-    stack: u8,
-    x_index: u8,
-    y_index: u8
-}
+use crate::nes::instructions::Opcode;
 
-impl Cpu{
+struct Opcode0xe6 {}
 
-    // Constructor for Cpu
-    pub fn new() -> Cpu {
-        return Cpu {
-            accumulator: 0,
-            flag: 0,
-            program_counter: 0,
-            stack: 0,
-            x_index: 0,
-            y_index: 0
-        }
+impl Opcode for Opcode0xe6 {
+
+    fn get_name(&mut self) -> &str {
+        return "0xe6"
     }
-
-    // Reset the cpu to the starting conditions
-    pub fn reset(&mut self){
-        self.accumulator = 0;
-        self.flag = 0;
-        self.program_counter = 0;
-        self.stack = 0;
-        self.x_index = 0;
-        self.y_index = 0;
-    }
-
-    // Execute a clock cycle on the cpu
-    pub fn execute_clock_cycle(&mut self){
-        self.reset();
+    
+    fn decode(&mut self) {
+        print!("TBD")
     }
 
 }

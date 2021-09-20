@@ -24,12 +24,14 @@
 
 pub mod architecture;
 pub mod controllers;
+pub mod instructions;
 pub mod mappers;
 
+use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
 
 pub struct Nes {
-    // cpu: Cpu,
+    cpu: Cpu,
     // apu: Apu,
     memory: Memory
     // ppu: Ppu,
@@ -39,6 +41,7 @@ pub struct Nes {
 impl Nes {
     // Constructor for Nes
     pub fn new() -> Self {
+
 
         // Initialize the memory with 8KB
         let memory_size: usize = 8192000;
@@ -53,17 +56,26 @@ impl Nes {
             }
         }
 
+        // Initialize the CPU
+        let cpu: Cpu = Cpu::new();
+
         // Construct the Nes
         return Nes {
+            cpu,
             memory
         }
     }
 
-    pub fn run (&mut self){
+    fn dump_memory(&mut self){
         let memory_size = self.memory.get_size();
         for i in 0..memory_size{
             self.memory.write(i, [1].to_vec());
         }
         print!("{:?}", self.memory.read(0, memory_size));
+    }
+
+    pub fn run (&mut self){
+        self.dump_memory();
+        self.cpu.execute_clock_cycle();
     }
 }
