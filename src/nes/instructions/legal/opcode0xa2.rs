@@ -34,8 +34,12 @@ impl Opcode for Opcode0xa2 {
         return "0xa2"
     }
     
-    fn execute_instruction(&mut self, _cpu: Cpu, _memory: Memory, _data: Vec<u8>) {
-        panic!("Instruction '0xa2' is not implemented")
+    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
+        // Set flags
+        _cpu.flags = _cpu.flags & 0b1100_0000;
+
+        // Load the provided byte directly into x index register
+        _cpu.x_index = _data[0];
     }
 
 }

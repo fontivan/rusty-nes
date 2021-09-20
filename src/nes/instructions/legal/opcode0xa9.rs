@@ -34,7 +34,7 @@ impl Opcode for Opcode0xa9 {
         return "0xa9"
     }
     
-    fn execute_instruction(&mut self, _cpu: Cpu, _memory: Memory, _data: Vec<u8>) {
+    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
         panic!("Instruction '0xa9' is not implemented")
     }
 

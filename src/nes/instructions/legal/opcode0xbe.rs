@@ -34,8 +34,12 @@ impl Opcode for Opcode0xbe {
         return "0xbe"
     }
     
-    fn execute_instruction(&mut self, _cpu: Cpu, _memory: Memory, _data: Vec<u8>) {
-        panic!("Instruction '0xbe' is not implemented")
+    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
+        // Set flags
+        _cpu.flags = _cpu.flags & 0b1100_0000;
+
+        // Add the contents of index y to the provided operand and load that address from memory
+        _cpu.x_index = _memory.read((_data[0] + _cpu.y_index).into(), 1)[0];
     }
 
 }

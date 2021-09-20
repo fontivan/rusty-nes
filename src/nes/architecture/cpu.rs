@@ -23,12 +23,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 pub struct Cpu {
-    accumulator: u8,
-    flags: u8,
-    program_counter: u16,
-    stack: u8,
-    x_index: u8,
-    y_index: u8
+    pub accumulator: u8,
+    pub flags: u8,
+    pub program_counter: u16,
+    pub stack: u8,
+    pub x_index: u8,
+    pub y_index: u8
 }
 
 impl Cpu{

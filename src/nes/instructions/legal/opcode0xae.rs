@@ -34,8 +34,12 @@ impl Opcode for Opcode0xae {
         return "0xae"
     }
     
-    fn execute_instruction(&mut self, _cpu: Cpu, _memory: Memory, _data: Vec<u8>) {
-        panic!("Instruction '0xae' is not implemented")
+    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
+        // Set flags
+        _cpu.flags = _cpu.flags & 0b1100_0000;
+
+        // Load one byte from memory at the address specified in the operand
+        _cpu.x_index = _memory.read(_data[0].into(), 1)[0]
     }
 
 }

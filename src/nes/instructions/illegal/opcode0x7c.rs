@@ -34,7 +34,7 @@ impl Opcode for Opcode0x7c {
         return "0x7c"
     }
     
-    fn execute_instruction(&mut self, _cpu: Cpu, _memory: Memory, _data: Vec<u8>) {
+    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
         panic!("Instruction '0x7c' is not implemented")
     }
 
