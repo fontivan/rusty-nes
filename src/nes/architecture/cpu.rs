@@ -47,13 +47,45 @@ impl Cpu{
         }
     }
 
+    pub fn set_c_flag(&mut self){
+        self.flags = self.flags | 0b0000_0001;
+    }
+
+    pub fn clear_c_flag(&mut self){
+        self.flags = self.flags & 0b1111_1101;
+    }
+
+    pub fn set_i_flag(&mut self){
+        self.flags = self.flags | 0b0000_0100;
+    }
+
+    pub fn clear_i_flag(&mut self){
+        self.flags = self.flags & 0b1111_1011;
+    }
+
+    pub fn set_n_flag(&mut self){
+        self.flags = self.flags | 0b1000_0000;
+    }
+
+    pub fn clear_n_flag(&mut self){
+        self.flags = self.flags & 0b0111_1111;
+    }
+
+    pub fn set_z_flag(&mut self){
+        self.flags = self.flags | 0b0000_0010;
+    }
+
+    pub fn clear_z_flag(&mut self){
+        self.flags = self.flags & 0b1111_1101;
+    }
+
     // Reset the cpu to the starting conditions
     // This is done in the "After reset" state as described by the nesdev wiki
     // https://wiki.nesdev.com/w/index.php/CPU_power_up_state#After_reset
     pub fn reset(&mut self){
 
         // Set I flag high
-        self.flags = self.flags & 0b00000100;
+        self.set_i_flags();
 
         // Decrement stack by 3
         self.stack = self.stack - 3;
