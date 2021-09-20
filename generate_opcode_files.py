@@ -182,9 +182,9 @@ def generate_opcodes():
     }}
     
     fn decode(&mut self) {{
-        print!("TBD")
+        panic!("Instruction '{}' is not implemented")
     }}
-""".format(opcode)
+""".format(opcode, opcode)
         file_contents = """{}\n\n{}\n\n{}{}{}\n\n{}{}{}\n{}\n{}\n""".format(
                 copyright_header,
                 opcode_import,

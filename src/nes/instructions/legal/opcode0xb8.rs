@@ -33,7 +33,7 @@ impl Opcode for Opcode0xb8 {
     }
     
     fn decode(&mut self) {
-        print!("TBD")
+        panic!("Instruction '0xb8' is not implemented")
     }
 
 }
