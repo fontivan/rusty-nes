@@ -24,6 +24,8 @@
 
 pub struct Cpu {
     pub accumulator: u8,
+    // Flag usage is derived from the nesdev wiki
+    // https://wiki.nesdev.com/w/index.php/Status_flags
     pub flags: u8,
     pub program_counter: u16,
     pub stack: u8,

@@ -22,8 +22,19 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Instruction set retrieved from https://www.masswerk.at/6502/6502_instruction_set.html
+// Instruction set opcodes and legality retrieved from source #1 below.
+
+// Instruction set usage is derived three sources:
+//      1. https://www.masswerk.at/6502/6502_instruction_set.html
+//      2. http://www.6502.org/tutorials/6502opcodes.html
+//      3. https://sites.google.com/site/6502asembly/6502-instruction-set/ldx
+
+// All legal instructions will need to be implemented.
 pub mod legal;
+
+// Illegal instructions will be implemented on an as-needed basis.
+// A partial list of games requiring illegal opcodes is available on the nes wiki
+// https://wiki.nesdev.com/w/index.php/CPU_unofficial_opcodes#Games_using_unofficial_opcodes
 pub mod illegal;
 
 use crate::nes::architecture::cpu::Cpu;
