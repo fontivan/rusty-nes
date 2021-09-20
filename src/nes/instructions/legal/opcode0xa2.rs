@@ -29,17 +29,27 @@ use crate::nes::architecture::memory::Memory;
 struct Opcode0xa2 {}
 
 impl Opcode for Opcode0xa2 {
-
     fn get_name(&mut self) -> &str {
-        return "0xa2"
+        return "0xa2";
     }
-    
+
     fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
-        // Set flags
-        _cpu.flags = _cpu.flags & 0b1100_0000;
 
         // Load the provided byte directly into x index register
         _cpu.x_index = _data[0];
-    }
 
+        // If the MSB is high then we will need to set N
+        if _cpu.x_index & 0b1000_0000 == 0 {
+            _cpu.clear_n_flag();
+        } else {
+            _cpu.set_n_flag();
+        }
+
+        // If the value is zero then set Z
+        if _cpu.x_index == 0 {
+            _cpu.set_z_flag();
+        } else {
+            _cpu.clear_z_flag();
+        }
+    }
 }

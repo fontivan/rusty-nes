@@ -29,17 +29,26 @@ use crate::nes::architecture::memory::Memory;
 struct Opcode0xb6 {}
 
 impl Opcode for Opcode0xb6 {
-
     fn get_name(&mut self) -> &str {
-        return "0xb6"
+        return "0xb6";
     }
-    
-    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
-        // Set flags
-        _cpu.flags = _cpu.flags & 0b1100_0000;
 
+    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
         // Add the contents of index y to the provided operand and load that address from memory
         _cpu.x_index = _memory.read((_data[0] + _cpu.y_index).into(), 1)[0];
-    }
 
+        // If the MSB is high then we will need to set N
+        if _cpu.x_index & 0b1000_0000 == 0 {
+            _cpu.clear_n_flag();
+        } else {
+            _cpu.set_n_flag();
+        }
+
+        // If the value is zero then set Z
+        if _cpu.x_index == 0 {
+            _cpu.set_z_flag();
+        } else {
+            _cpu.clear_z_flag();
+        }
+    }
 }
