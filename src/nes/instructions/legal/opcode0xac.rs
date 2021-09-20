@@ -23,6 +23,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::instructions::Opcode;
+use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::memory::Memory;
 
 struct Opcode0xac {}
 
@@ -32,7 +34,7 @@ impl Opcode for Opcode0xac {
         return "0xac"
     }
     
-    fn decode(&mut self) {
+    fn execute_instruction(&mut self, cpu: Cpu, memory: Memory) {
         panic!("Instruction '0xac' is not implemented")
     }
 

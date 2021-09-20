@@ -29,7 +29,9 @@ copyright_header = """//////////////////////////////////////////////////////////
 
 struct_prefix = "struct Opcode"
 struct_suffix = " {}"
-opcode_import = "use crate::nes::instructions::Opcode;"
+opcode_import = """use crate::nes::instructions::Opcode;
+use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::memory::Memory;"""
 impl_prefix = "impl Opcode for Opcode"
 impl_suffix = "}"
 
@@ -181,7 +183,7 @@ def generate_opcodes():
         return "{}"
     }}
     
-    fn decode(&mut self) {{
+    fn execute_instruction(&mut self, cpu: Cpu, memory: Memory) {{
         panic!("Instruction '{}' is not implemented")
     }}
 """.format(opcode, opcode)

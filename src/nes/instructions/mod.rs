@@ -26,7 +26,10 @@
 pub mod legal;
 pub mod illegal;
 
+use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::memory::Memory;
+
 trait Opcode {
     fn get_name(&mut self) -> &str;
-    fn decode(&mut self);
+    fn execute_instruction(&mut self, cpu: Cpu, memory: Memory);
 }
