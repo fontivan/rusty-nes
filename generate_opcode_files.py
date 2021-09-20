@@ -183,7 +183,7 @@ def generate_opcodes():
         return "{}"
     }}
     
-    fn execute_instruction(&mut self, cpu: Cpu, memory: Memory) {{
+    fn execute_instruction(&mut self, _cpu: Cpu, _memory: Memory, _data: Vec<u8>) {{
         panic!("Instruction '{}' is not implemented")
     }}
 """.format(opcode, opcode)

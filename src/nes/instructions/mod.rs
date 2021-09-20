@@ -31,5 +31,5 @@ use crate::nes::architecture::memory::Memory;
 
 trait Opcode {
     fn get_name(&mut self) -> &str;
-    fn execute_instruction(&mut self, cpu: Cpu, memory: Memory);
+    fn execute_instruction(&mut self, _cpu: Cpu, _memory: Memory, _data: Vec<u8>);
 }
