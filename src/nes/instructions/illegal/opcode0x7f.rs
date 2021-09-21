@@ -33,7 +33,7 @@ impl Opcode for Opcode0x7f {
         return "0x7f".to_string();
     }
 
-    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         panic!("Instruction '0x7f' is not implemented")
     }
 }

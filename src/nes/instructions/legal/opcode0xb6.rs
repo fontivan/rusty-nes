@@ -33,9 +33,13 @@ impl Opcode for Opcode0xb6 {
         return "0xb6".to_string();
     }
 
-    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
+
+        // Get the operand data from the memory
+        let low_byte: u8 = _memory.read((_cpu.program_counter + 1).into(), 1)[0];
+
         // Add the contents of index y to the provided operand and load that address from memory
-        _cpu.x_index = _memory.read((_data[0] + _cpu.y_index).into(), 1)[0];
+        _cpu.x_index = _memory.read((low_byte + _cpu.y_index).into(), 1)[0];
 
         // If the MSB is high then we will need to set N
         if _cpu.x_index & 0b1000_0000 == 0 {

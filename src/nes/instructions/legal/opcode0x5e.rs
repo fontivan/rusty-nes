@@ -33,12 +33,16 @@ impl Opcode for Opcode0x5e {
         return "0x5e".to_string();
     }
 
-    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
+
+        // Get the operand data from the memory
+        let low_byte: u8 = _memory.read((_cpu.program_counter + 1).into(), 1)[0];
+        let high_byte: u8 = _memory.read((_cpu.program_counter + 2).into(), 1)[0];
 
         // Get the address
         let address: usize = _cpu.get_absolute_address(
             _cpu.x_index,
-            _cpu.get_u16_from_u8_pair(_data[0], _data[1]),
+            _cpu.get_u16_from_u8_pair(low_byte, high_byte),
         ).into();
 
         // Fetch the data from memory using the x index as an offset

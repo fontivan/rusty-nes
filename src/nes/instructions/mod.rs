@@ -41,8 +41,11 @@ pub mod legal;
 pub mod illegal;
 
 pub trait Opcode {
-    fn get_name() -> String;
-    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
-        panic!("Opcode trait must be overwritten.");
+    fn get_name() -> String {
+        panic!("Opcode::get_name() must be overwritten.")
+    }
+
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
+        panic!("Opcode::execute() must be overwritten.");
     }
 }
