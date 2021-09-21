@@ -22,6 +22,13 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use crate::nes::instructions::Opcode;
+
+use crate::nes::instructions::legal::opcode0x4a::Opcode0x4a;
+use crate::nes::instructions::legal::opcode0x4e::Opcode0x4e;
+
+use crate::nes::Memory;
+
 pub struct Cpu {
     pub accumulator: u8,
     // Flag usage is derived from the nesdev wiki
@@ -30,11 +37,10 @@ pub struct Cpu {
     pub program_counter: u16,
     pub stack: u8,
     pub x_index: u8,
-    pub y_index: u8
+    pub y_index: u8,
 }
 
-impl Cpu{
-
+impl Cpu {
     // Constructor for Cpu
     // This is done in the "Power Up" state as described by the nesdev wiki
     // https://wiki.nesdev.com/w/index.php/CPU_power_up_state#At_power-up
@@ -45,57 +51,125 @@ impl Cpu{
             program_counter: 0x34,
             stack: 0xFD,
             x_index: 0,
-            y_index: 0
-        }
+            y_index: 0,
+        };
     }
 
-    pub fn set_c_flag(&mut self){
+    pub fn set_c_flag(&mut self) {
         self.flags = self.flags | 0b0000_0001;
     }
 
-    pub fn clear_c_flag(&mut self){
+    pub fn clear_c_flag(&mut self) {
         self.flags = self.flags & 0b1111_1101;
     }
 
-    pub fn set_i_flag(&mut self){
+    pub fn set_i_flag(&mut self) {
         self.flags = self.flags | 0b0000_0100;
     }
 
-    pub fn clear_i_flag(&mut self){
+    pub fn clear_i_flag(&mut self) {
         self.flags = self.flags & 0b1111_1011;
     }
 
-    pub fn set_n_flag(&mut self){
+    pub fn set_n_flag(&mut self) {
         self.flags = self.flags | 0b1000_0000;
     }
 
-    pub fn clear_n_flag(&mut self){
+    pub fn clear_n_flag(&mut self) {
         self.flags = self.flags & 0b0111_1111;
     }
 
-    pub fn set_z_flag(&mut self){
+    pub fn set_z_flag(&mut self) {
         self.flags = self.flags | 0b0000_0010;
     }
 
-    pub fn clear_z_flag(&mut self){
+    pub fn clear_z_flag(&mut self) {
         self.flags = self.flags & 0b1111_1101;
+    }
+
+    pub fn get_u16_from_u8_pair(&self, low_byte: u8, high_byte: u8) -> u16 {
+
+        // Load the high byte into the address
+        let mut high: u16 = high_byte.into();
+
+        // Shift the bytes to the left by 8 bits to make room
+        high = high << 8;
+
+        // Load the low byte into the address
+        let low: u16 = low_byte.into();
+
+        // Combine the high and low bytes bitwise
+        let address: u16 = high | low;
+
+        // Return the result
+        return address;
+    }
+
+    pub fn get_zero_paged_address(&self, index: u8, operand: u8) -> u16 {
+
+        // First get the absolute address
+        let mut address: u16 = self.get_absolute_address(index, operand.into());
+
+        // Zero out the high byte
+        address = address & 0b0000_0000_1111_1111;
+
+        // Return the address
+        return address;
+    }
+
+    pub fn get_absolute_address(&self, index: u8, operand: u16) -> u16 {
+
+        // Turn the u8 into a u16
+        let mut address: u16 = index.into();
+
+        // Add the operand to address
+        address = address + operand;
+
+        // Return the address
+        return address;
     }
 
     // Reset the cpu to the starting conditions
     // This is done in the "After reset" state as described by the nesdev wiki
     // https://wiki.nesdev.com/w/index.php/CPU_power_up_state#After_reset
-    pub fn reset(&mut self){
+    pub fn reset(&mut self) {
 
         // Set I flag high
-        self.set_i_flags();
+        self.set_i_flag();
 
         // Decrement stack by 3
         self.stack = self.stack - 3;
     }
 
-    // Execute a clock cycle on the cpu
-    pub fn execute_clock_cycle(&mut self){
-        self.reset();
+
+    pub fn set_nestest_automation(&mut self) {
+        // Automation mode is defined on github
+        // https://github.com/christopherpow/nes-test-roms/blob/master/other/nestest.txt#L67
+        self.program_counter = 0x0000_c000;
     }
 
+    // Execute a clock cycle on the cpu
+    pub fn execute_clock_cycle(mut cpu: &mut Cpu, mut memory: &mut Memory) {
+
+        // The extra data will be fetched based on the opcode and will vary in length
+        let mut data: Vec<u8> = [].to_vec();
+
+        // Fetch
+        let opcode: u8 = memory.read(cpu.program_counter.into(), 1)[0];
+
+        // Decode
+        match opcode {
+            0x4a => {
+                Opcode0x4a::execute(cpu, memory, data);
+            },
+            0x4e =>{
+                data = memory.read((cpu.program_counter + 1).into(), 2);
+                Opcode0x4e::execute(cpu, memory, data);
+            },
+            _ => {
+                panic!("Decoder not aware of instruction opcode '{0}'.", opcode);
+            }
+        }
+
+    }
 }

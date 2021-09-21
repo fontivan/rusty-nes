@@ -22,18 +22,18 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::instructions::Opcode;
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::instructions::Opcode;
 
-struct Opcode0xbe {}
+pub struct Opcode0xbe {}
 
 impl Opcode for Opcode0xbe {
-    fn get_name(&mut self) -> &str {
-        return "0xbe";
+    fn get_name() -> String {
+        return "0xbe".to_string();
     }
 
-    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
 
         // Add the contents of index y to the provided operand and load that address from memory
         _cpu.x_index = _memory.read((_data[0] + _cpu.y_index).into(), 1)[0];

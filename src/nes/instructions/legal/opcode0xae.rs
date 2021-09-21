@@ -22,21 +22,21 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::instructions::Opcode;
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::instructions::Opcode;
 
-struct Opcode0xae {}
+pub struct Opcode0xae {}
 
 impl Opcode for Opcode0xae {
-    fn get_name(&mut self) -> &str {
-        return "0xae";
+    fn get_name() -> String {
+        return "0xae".to_string();
     }
 
-    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
 
         // Load one byte from memory at the address specified in the operand
-        _cpu.x_index = _memory.read(_data[0].into(), 1)[0]
+        _cpu.x_index = _memory.read(_data[0].into(), 1)[0];
 
         // If the MSB is high then we will need to set N
         if _cpu.x_index & 0b1000_0000 == 0 {

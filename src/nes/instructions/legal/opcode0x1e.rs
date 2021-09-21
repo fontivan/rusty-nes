@@ -22,20 +22,18 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::instructions::Opcode;
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::instructions::Opcode;
 
-struct Opcode0x1e {}
+pub struct Opcode0x1e {}
 
 impl Opcode for Opcode0x1e {
-
-    fn get_name(&mut self) -> &str {
-        return "0x1e"
+    fn get_name() -> String {
+        return "0x1e".to_string();
     }
-    
-    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
+
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
         panic!("Instruction '0x1e' is not implemented")
     }
-
 }

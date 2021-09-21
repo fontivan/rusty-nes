@@ -27,7 +27,10 @@
 // Instruction set usage is derived three sources:
 //      1. https://www.masswerk.at/6502/6502_instruction_set.html
 //      2. http://www.6502.org/tutorials/6502opcodes.html
-//      3. https://sites.google.com/site/6502asembly/6502-instruction-set/ldx
+//      3. https://sites.google.com/site/6502asembly/6502-instruction-set/
+
+use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::memory::Memory;
 
 // All legal instructions will need to be implemented.
 pub mod legal;
@@ -37,10 +40,9 @@ pub mod legal;
 // https://wiki.nesdev.com/w/index.php/CPU_unofficial_opcodes#Games_using_unofficial_opcodes
 pub mod illegal;
 
-use crate::nes::architecture::cpu::Cpu;
-use crate::nes::architecture::memory::Memory;
-
-trait Opcode {
-    fn get_name(&mut self) -> &str;
-    fn execute_instruction(&self, _cpu: Cpu, _memory: Memory, _data: Vec<u8>);
+pub trait Opcode {
+    fn get_name() -> String;
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
+        panic!("Opcode trait must be overwritten.");
+    }
 }

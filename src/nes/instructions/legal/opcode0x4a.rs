@@ -22,24 +22,24 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::instructions::Opcode;
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::instructions::Opcode;
 
-struct Opcode0x4a {}
+pub struct Opcode0x4a {}
 
 impl Opcode for Opcode0x4a {
-    fn get_name(&mut self) -> &str {
-        return "0x4a";
+    fn get_name() -> String {
+        return "0x4a".to_string();
     }
 
-    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
 
         // Fetch the rightmost bit
         let carry: u8 = _cpu.accumulator & 0b0000_0001;
 
         // Rotate the bits in the accumlator to the right by 1 bit
-        _cpu.accumlator = _cpu.accumulator >> 1;
+        _cpu.accumulator = _cpu.accumulator >> 1;
 
         // Load a zero into the leftmost bit
         _cpu.accumulator = _cpu.accumulator & 0b1000_0000;

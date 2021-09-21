@@ -22,24 +22,27 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::instructions::Opcode;
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::instructions::Opcode;
 
-struct Opcode0x5e {}
+pub struct Opcode0x5e {}
 
 impl Opcode for Opcode0x5e {
-    fn get_name(&mut self) -> &str {
-        return "0x5e";
+    fn get_name() -> String {
+        return "0x5e".to_string();
     }
 
-    fn execute_instruction(&self, mut _cpu: Cpu, mut _memory: Memory, _data: Vec<u8>) {
+    fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory, mut _data: Vec<u8>) {
 
-        // Calculate the address using the operand and x index
-        let address: usize = (_data[0] + _cpu.x_index).into();
+        // Get the address
+        let address: usize = _cpu.get_absolute_address(
+            _cpu.x_index,
+            _cpu.get_u16_from_u8_pair(_data[0], _data[1]),
+        ).into();
 
         // Fetch the data from memory using the x index as an offset
-        let data: u8 = _memory.read(address, 1)[0];
+        let mut data: u8 = _memory.read(address, 1)[0];
 
         // Fetch the rightmost bit
         let carry: u8 = data & 0b0000_0001;
@@ -47,8 +50,11 @@ impl Opcode for Opcode0x5e {
         // Rotate the bits right by 1 bit
         data = data >> 1;
 
+        // Set leftmost bit to 0
+        data = data & 0b0111_1111;
+
         // Write the data back to memory
-        _memory.write(address, [data]);
+        _memory.write(address, [data].to_vec());
 
         // If data is now zero, then set the zero flag high
         if data == 0 {
