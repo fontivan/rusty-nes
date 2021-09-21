@@ -25,5 +25,6 @@
 pub mod apu;
 pub mod cartridge_slot;
 pub mod cpu;
+pub mod decoder;
 pub mod memory;
 pub mod ppu;
