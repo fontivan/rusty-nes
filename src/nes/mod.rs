@@ -46,7 +46,7 @@ impl Nes {
 
 
         // Initialize the memory with 2KB (RAM) + 1MB (ROM)
-        let memory_size: usize = 1024*1000*2 + 1024*1000*1000;
+        let memory_size: usize = 1024 * 1000 * 2 + 1024 * 1000 * 1000;
         let memory_result: Result<Memory, usize> = Memory::new(memory_size);
         let memory: Memory;
         match memory_result {

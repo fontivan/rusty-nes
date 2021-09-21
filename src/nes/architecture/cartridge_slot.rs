@@ -62,10 +62,10 @@ impl CartridgeSlot {
         // Create the file using the provided path
         let mut opened_file: File;
 
-        match File::open(self.file_path.clone()){
-            Ok(file) =>{
+        match File::open(self.file_path.clone()) {
+            Ok(file) => {
                 opened_file = file;
-            },
+            }
             Err(_) => {
                 panic!("Unable to open file '{0}'.", self.file_path);
             }
@@ -75,8 +75,8 @@ impl CartridgeSlot {
         let mut file_content: String = String::new();
 
         // Read the content from the file into the string
-        match opened_file.read_to_string(&mut file_content){
-            Ok(_) =>{
+        match opened_file.read_to_string(&mut file_content) {
+            Ok(_) => {
                 //no-op
             }
             Err(_) => {

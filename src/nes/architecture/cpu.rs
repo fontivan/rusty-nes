@@ -22,11 +22,9 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::instructions::Opcode;
-
 use crate::nes::instructions::legal::opcode0x4a::Opcode0x4a;
 use crate::nes::instructions::legal::opcode0x4e::Opcode0x4e;
-
+use crate::nes::instructions::Opcode;
 use crate::nes::Memory;
 
 pub struct Cpu {
@@ -161,15 +159,14 @@ impl Cpu {
         match opcode {
             0x4a => {
                 Opcode0x4a::execute(cpu, memory, data);
-            },
-            0x4e =>{
+            }
+            0x4e => {
                 data = memory.read((cpu.program_counter + 1).into(), 2);
                 Opcode0x4e::execute(cpu, memory, data);
-            },
+            }
             _ => {
                 panic!("Decoder not aware of instruction opcode '{0}'.", opcode);
             }
         }
-
     }
 }
