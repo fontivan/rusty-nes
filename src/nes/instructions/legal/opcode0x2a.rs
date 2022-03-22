@@ -37,7 +37,7 @@ impl Opcode for Opcode0x2a {
         // Rotate left on the accumulator register
 
         // Get the value from the accumulator
-        let value = _cpu.accumulator;
+        let mut value = _cpu.accumulator;
 
         // Get the high bit from the value
         let high_bit = value & 0b1000_0000;
@@ -46,7 +46,7 @@ impl Opcode for Opcode0x2a {
         value = value << 1;
 
         // Set the lowest bit to be the value from the carry flag
-        if _cpu.carry == 1 {
+        if _cpu.is_c_set() {
             value = value | 0b0000_0001;
         }
 
@@ -54,7 +54,11 @@ impl Opcode for Opcode0x2a {
         _cpu.accumulator = value;
 
         // Save the high bit into the carry
-        _cpu.carry = high_bit;
+        if high_bit != 0 {
+            _cpu.set_c_flag();
+        } else {
+            _cpu.clear_c_flag();
+        }
 
         // Conditionally set the zero flag
         if value == 0 {

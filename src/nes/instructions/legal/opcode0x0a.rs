@@ -37,7 +37,7 @@ impl Opcode for Opcode0x0a {
         // Arithmetic shift left on the accumulator register
 
         // Get the value from the accumulator
-        let value = _cpu.accumulator;
+        let mut value = _cpu.accumulator;
 
         // Get the high bit from the value
         let high_bit = value & 0b1000_0000;
@@ -49,7 +49,11 @@ impl Opcode for Opcode0x0a {
         _cpu.accumulator = value;
 
         // Save the high bit into the carry
-        _cpu.carry = high_bit;
+        if high_bit != 0 {
+            _cpu.set_c_flag();
+        } else {
+            _cpu.clear_c_flag();
+        }
 
         // Conditionally set the zero flag
         if value == 0 {
