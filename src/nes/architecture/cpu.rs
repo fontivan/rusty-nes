@@ -59,12 +59,20 @@ impl Cpu {
         self.flags = self.flags & 0b1111_1101;
     }
 
+    pub fn is_c_set(&mut self) -> bool {
+        return self.flags & 0b0000_0001 == 0b0000_0001
+    }
+
     pub fn set_i_flag(&mut self) {
         self.flags = self.flags | 0b0000_0100;
     }
 
     pub fn clear_i_flag(&mut self) {
         self.flags = self.flags & 0b1111_1011;
+    }
+
+    pub fn is_i_set(&mut self) -> bool {
+        return self.flags & 0b0000_0100 == 0b0000_0100
     }
 
     pub fn set_n_flag(&mut self) {
@@ -75,12 +83,20 @@ impl Cpu {
         self.flags = self.flags & 0b0111_1111;
     }
 
+    pub fn is_n_set(&mut self) -> bool {
+        return self.flags & 0b1000_0000 == 0b1000_0000
+    }
+
     pub fn set_z_flag(&mut self) {
         self.flags = self.flags | 0b0000_0010;
     }
 
     pub fn clear_z_flag(&mut self) {
         self.flags = self.flags & 0b1111_1101;
+    }
+
+    pub fn is_z_set(&mut self) -> bool {
+        return self.flags & 0b0000_0010 == 0b0000_0010
     }
 
     pub fn get_u16_from_u8_pair(&self, low_byte: u8, high_byte: u8) -> u16 {
