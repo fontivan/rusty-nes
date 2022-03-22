@@ -34,6 +34,41 @@ impl Opcode for Opcode0x2a {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x2a' is not implemented")
+        // Rotate left on the accumulator register
+
+        // Get the value from the accumulator
+        value = _cpu.accumulator
+
+        // Get the high bit from the value
+        high_bit = value & 0b1000_0000
+
+        // Shift the value
+        value = value << 1
+
+        // Set the lowest bit to be the value from the carry flag
+        if _cpu.carry == 1 {
+            value = value | 0b0000_0001
+        }
+
+        // Save the value back to the accumulator
+        _cpu.accumulator = value
+
+        // Save the high bit into the carry
+        _cpu.carry = high_bit
+
+        // Conditionally set the zero flag
+        if value == 0 {
+            _cpu.set_z_flag()
+        } else {
+            _cpu.clear_z_flag()
+        }
+        
+        // Conditionally set the negative flag
+        if value & 0b1000_0000 == 0b1000_0000 {
+            _cpu.set_n_flag()
+        } else {
+            _cpu.clear_n_flag()
+        }
+
     }
 }
