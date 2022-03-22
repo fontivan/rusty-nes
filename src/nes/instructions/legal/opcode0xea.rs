@@ -34,6 +34,7 @@ impl Opcode for Opcode0xea {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0xea' is not implemented")
+        // No-op
+        return
     }
 }
