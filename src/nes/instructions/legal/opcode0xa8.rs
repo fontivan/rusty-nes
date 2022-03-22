@@ -34,6 +34,21 @@ impl Opcode for Opcode0xa8 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0xa8' is not implemented")
+        // Transfer from the accumulator to the y index
+        _cpu.y_index = _cpu.accumulator
+
+        // Conditionally set the zero flag
+        if _cpu.y_index == 0 {
+            _cpu.set_z_flag()
+        } else {
+            _cpu.clear_z_flag()
+        }
+
+        // Conditionally set the negative flag
+        if _cpu.y_index & 0b1000_0000 == 0b1000_0000 {
+            _cpu.set_n_flag()
+        } else {
+            _cpu.clear_n_flag()
+        }
     }
 }

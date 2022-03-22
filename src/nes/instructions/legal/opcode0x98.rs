@@ -34,6 +34,21 @@ impl Opcode for Opcode0x98 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x98' is not implemented")
+        // Transfer from the y index to the accumulator
+        _cpu.accumulator = _cpu.y_index
+
+        // Conditionally set the zero flag
+        if _cpu.accumulator == 0 {
+            _cpu.set_z_flag()
+        } else {
+            _cpu.clear_z_flag()
+        }
+
+        // Conditionally set the negative flag
+        if _cpu.accumulator & 0b1000_0000 == 0b1000_0000 {
+            _cpu.set_n_flag()
+        } else {
+            _cpu.clear_n_flag()
+        }
     }
 }
