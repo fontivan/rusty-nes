@@ -34,6 +34,44 @@ impl Opcode for Opcode0x6a {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x6a' is not implemented")
+        // Rotate right on the accumulator register
+
+        // Get the value from the accumulator
+        let mut value = _cpu.accumulator;
+
+        // Get the high bit from the value
+        let low_bit = value & 0b0000_0001;
+
+        // Shift the value
+        value = value >> 1;
+
+        // Set the highest bit to be the value from the carry flag
+        if _cpu.is_c_set() {
+            value = value | 0b1000_0000;
+        }
+
+        // Save the value back to the accumulator
+        _cpu.accumulator = value;
+
+        // Save the low bit into the carry
+        if low_bit != 0 {
+            _cpu.set_c_flag();
+        } else {
+            _cpu.clear_c_flag();
+        }
+
+        // Conditionally set the zero flag
+        if value == 0 {
+            _cpu.set_z_flag();
+        } else {
+            _cpu.clear_z_flag();
+        }
+        
+        // Conditionally set the negative flag
+        if value & 0b1000_0000 == 0b1000_0000 {
+            _cpu.set_n_flag();
+        } else {
+            _cpu.clear_n_flag();
+        }    
     }
 }
