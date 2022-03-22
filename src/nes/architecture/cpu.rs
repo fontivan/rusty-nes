@@ -51,18 +51,36 @@ impl Cpu {
         };
     }
 
+    // Flag bit 0 - Carry
+    // Set when the accumulator rolls over from 0xFF to 0x00, or as part of some operations
     pub fn set_c_flag(&mut self) {
         self.flags = self.flags | 0b0000_0001;
     }
 
     pub fn clear_c_flag(&mut self) {
-        self.flags = self.flags & 0b1111_1101;
+        self.flags = self.flags & 0b1111_1110;
     }
 
     pub fn is_c_set(&mut self) -> bool {
         return self.flags & 0b0000_0001 == 0b0000_0001
     }
 
+    // Flag bit 1 - Zero
+    // Set when the result of most instructions is 0x00
+    pub fn set_z_flag(&mut self) {
+        self.flags = self.flags | 0b0000_0010;
+    }
+
+    pub fn clear_z_flag(&mut self) {
+        self.flags = self.flags & 0b1111_1101;
+    }
+
+    pub fn is_z_set(&mut self) -> bool {
+        return self.flags & 0b0000_0010 == 0b0000_0010
+    }
+
+    // Flag bit 2 - Interrupt
+    // Set when various interrupt methods are called
     pub fn set_i_flag(&mut self) {
         self.flags = self.flags | 0b0000_0100;
     }
@@ -75,6 +93,49 @@ impl Cpu {
         return self.flags & 0b0000_0100 == 0b0000_0100
     }
 
+    // Flag bit 3 - Decimal
+    pub fn set_d_flag(&mut self) {
+        self.flags = self.flags | 0b0000_1000;
+    }
+
+    pub fn clear_d_flag(&mut self) {
+        self.flags = self.flags & 0b1111_0111;
+    }
+
+    pub fn is_d_set(&mut self) -> bool {
+        return self.flags & 0b0000_0000 == 0b0000_1000
+    }
+
+    // Flag bit 4 - Break
+    pub fn set_b_flag(&mut self) {
+        self.flags = self.flags | 0b0001_0000;
+    }
+
+    pub fn clear_b_flag(&mut self) {
+        self.flags = self.flags & 0b1110_1111;
+    }
+
+    pub fn is_b_set(&mut self) -> bool {
+        return self.flags & 0b0001_0000 == 0b0001_0000
+    }
+
+    // Flag bit 5 - Unused
+
+    // Flag bit 6 - Overflow
+    pub fn set_v_flag(&mut self) {
+        self.flags = self.flags | 0b0100_0000;
+    }
+
+    pub fn clear_v_flag(&mut self) {
+        self.flags = self.flags & 0b1011_1111;
+    }
+
+    pub fn is_v_set(&mut self) -> bool {
+        return self.flags & 0b0100_0000 == 0b0100_0000
+    }
+
+    // Flag bit 7 - Negative
+    // Set when the highest bit of the result is also set
     pub fn set_n_flag(&mut self) {
         self.flags = self.flags | 0b1000_0000;
     }
@@ -85,18 +146,6 @@ impl Cpu {
 
     pub fn is_n_set(&mut self) -> bool {
         return self.flags & 0b1000_0000 == 0b1000_0000
-    }
-
-    pub fn set_z_flag(&mut self) {
-        self.flags = self.flags | 0b0000_0010;
-    }
-
-    pub fn clear_z_flag(&mut self) {
-        self.flags = self.flags & 0b1111_1101;
-    }
-
-    pub fn is_z_set(&mut self) -> bool {
-        return self.flags & 0b0000_0010 == 0b0000_0010
     }
 
     pub fn get_u16_from_u8_pair(&self, low_byte: u8, high_byte: u8) -> u16 {
