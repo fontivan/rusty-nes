@@ -37,18 +37,7 @@ impl Opcode for Opcode0x98 {
         // Transfer from the y index to the accumulator
         _cpu.accumulator = _cpu.y_index;
 
-        // Conditionally set the zero flag
-        if _cpu.accumulator == 0 {
-            _cpu.set_z_flag();
-        } else {
-            _cpu.clear_z_flag();
-        }
+        _cpu.check_result_for_zero_and_negative_flags(_cpu.accumulator)
 
-        // Conditionally set the negative flag
-        if _cpu.accumulator & 0b1000_0000 == 0b1000_0000 {
-            _cpu.set_n_flag();
-        } else {
-            _cpu.clear_n_flag();
-        }
     }
 }

@@ -148,6 +148,24 @@ impl Cpu {
         return self.flags & 0b1000_0000 == 0b1000_0000
     }
 
+    pub fn check_result_for_zero_and_negative_flags(&mut self, result: u8) {
+
+        // If the last result was 0 then the zero flag must be set
+        if result == 0 {
+            self.set_z_flag()
+        } else {
+            self.clear_z_flag()
+        }
+
+        // If the highest bit of the last result was 1 then the negative flag must be set
+        if result & 0b1000_0000 == 0b1000_0000 {
+            self.set_n_flag()
+        } else {
+            self.clear_n_flag()
+        }
+
+    }
+
     pub fn get_u16_from_u8_pair(&self, low_byte: u8, high_byte: u8) -> u16 {
 
         // Load the high byte into the address
