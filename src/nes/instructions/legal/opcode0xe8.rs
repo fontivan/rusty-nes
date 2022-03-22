@@ -37,18 +37,7 @@ impl Opcode for Opcode0xe8 {
         // Increment the x register
         _cpu.x_index = _cpu.x_index + 1;
 
-        // Conditionally set the zero flag
-        if _cpu.x_index == 0 {
-            _cpu.set_z_flag();
-        } else {
-            _cpu.clear_z_flag();
-        }
+        _cpu.check_result_for_zero_and_negative_flags(_cpu.x_index)
 
-        // Conditionally set the negative flag
-        if _cpu.x_index & 0b1000_0000 == 0b1000_0000 {
-            _cpu.set_n_flag();
-        } else {
-            _cpu.clear_n_flag();
-        }
     }
 }
