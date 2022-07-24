@@ -25,6 +25,7 @@
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::instructions::Opcode;
+use crate::nes::architecture::utils::Utils;
 
 pub struct Opcode0x46 {}
 
@@ -39,7 +40,7 @@ impl Opcode for Opcode0x46 {
         let low_byte: u8 = _memory.read((_cpu.program_counter + 1).into(), 1)[0];
 
         // Get the address
-        let address: usize = _cpu.get_zero_paged_address(
+        let address: usize = Utils::get_zero_paged_address(
             0,
             low_byte,
         ).into();

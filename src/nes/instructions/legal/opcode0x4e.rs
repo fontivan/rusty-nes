@@ -25,6 +25,7 @@
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::instructions::Opcode;
+use crate::nes::architecture::utils::Utils;
 
 pub struct Opcode0x4e {}
 
@@ -40,9 +41,9 @@ impl Opcode for Opcode0x4e {
         let high_byte: u8 = _memory.read((_cpu.program_counter + 2).into(), 1)[0];
 
         // Get the address
-        let address: usize = _cpu.get_absolute_address(
+        let address: usize = Utils::get_absolute_address(
             0,
-            _cpu.get_u16_from_u8_pair(low_byte, high_byte),
+            Utils::get_u16_from_u8_pair(low_byte, high_byte),
         ).into();
 
         // Fetch the data from memory

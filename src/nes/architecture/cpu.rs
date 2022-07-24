@@ -24,6 +24,7 @@
 
 use crate::nes::architecture::decoder::Decoder;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::architecture::utils::Utils;
 
 pub struct Cpu {
     pub accumulator: u8,
@@ -167,48 +168,6 @@ impl Cpu {
 
     }
 
-    pub fn get_u16_from_u8_pair(&self, low_byte: u8, high_byte: u8) -> u16 {
-
-        // Load the high byte into the address
-        let mut high: u16 = high_byte.into();
-
-        // Shift the bytes to the left by 8 bits to make room
-        high = high << 8;
-
-        // Load the low byte into the address
-        let low: u16 = low_byte.into();
-
-        // Combine the high and low bytes bitwise
-        let address: u16 = high | low;
-
-        // Return the result
-        return address;
-    }
-
-    pub fn get_zero_paged_address(&self, index: u8, operand: u8) -> u16 {
-
-        // First get the absolute address
-        let mut address: u16 = self.get_absolute_address(index, operand.into());
-
-        // Zero out the high byte
-        address = address & 0b0000_0000_1111_1111;
-
-        // Return the address
-        return address;
-    }
-
-    pub fn get_absolute_address(&self, index: u8, operand: u16) -> u16 {
-
-        // Turn the u8 into a u16
-        let mut address: u16 = index.into();
-
-        // Add the operand to address
-        address = address + operand;
-
-        // Return the address
-        return address;
-    }
-
     // Reset the cpu to the starting conditions
     // This is done in the "After reset" state as described by the nesdev wiki
     // https://wiki.nesdev.com/w/index.php/CPU_power_up_state#After_reset
@@ -232,7 +191,8 @@ impl Cpu {
     pub fn execute_clock_cycle(mut cpu: &mut Cpu, mut memory: &mut Memory) {
 
         // Fetch
-        let opcode: u8 = memory.read(cpu.program_counter.into(), 1)[0];
+        let data: Vec<u8> = memory.read(cpu.program_counter.into(), 2);
+        let opcode: u16 = Utils::get_u16_from_u8_pair(data[1], data[0]);
 
         // Decode and execute
         Decoder::execute(cpu, memory, opcode);
