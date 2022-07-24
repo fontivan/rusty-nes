@@ -104,7 +104,7 @@ impl Cpu {
     }
 
     pub fn is_d_set(&mut self) -> bool {
-        self.flags & 0b0000_0000 == 0b0000_1000
+        self.flags & 0b0000_1000 == 0b0000_1000
     }
 
     // Flag bit 4 - Break

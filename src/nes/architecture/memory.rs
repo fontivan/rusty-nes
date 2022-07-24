@@ -47,11 +47,11 @@ impl Memory {
         // If the offset is greater then the size of the memory we have a problem
         // This must be strictly less then, as if the offset was equal to the size then no matter
         // the length it would be a problem
-        assert_eq!(offset < self.size, true);
+        assert!(offset < self.size);
 
         // If the sum of the offset and the length is greater then the size of the memory we have a problem
         // This must be lesser then or equal to, as we could potentially be reading right up to the last byte
-        assert_eq!(offset + data_length <= self.size, true);
+        assert!(offset + data_length <= self.size);
     }
 
     // Get the size of the memory
@@ -78,9 +78,7 @@ impl Memory {
         self.assert_valid_inputs(offset, data_length);
 
         // For each input byte, overwrite the corresponding byte in the memory pool
-        for i in 0..data_length {
-            self.raw_memory[offset + i] = data[i];
-        }
+        self.raw_memory[offset..(data_length + offset)].copy_from_slice(&data[..data_length]);
     }
 
     pub fn load_rom_from_cartridge(&mut self, rom_content: String) {
@@ -103,14 +101,12 @@ impl Memory {
         assert!(raw_header[2] == 0x53);
         assert!(raw_header[3] == 0x1A);
 
-        let nes2: bool;
+        let mut nes2: bool = false;
         // The nes 2.0 specification is that from the 7th byte of the header, that bit 2 is clear and bit 3 is set
         let id_byte: u8 = raw_header[7];
-        if id_byte & 0b0000_0000 == 0b0000_0000 && id_byte & 0b0000_1000 == 0b0000_1000 {
+        if id_byte & 0b0000_0100 == 0b0000_0000 && id_byte & 0b0000_1000 == 0b0000_1000 {
             nes2 = true;
-        } else {
-            nes2 = false;
-        }
+        };
 
         //TODO: Load the rom properly. This is a temporary hack sourced from Stack Overflow
         // https://stackoverflow.com/questions/46998060/how-do-i-load-nestest-rom/47036424#47036424
@@ -144,9 +140,7 @@ mod tests {
         // The number of bytes of memory to use for the test
         let memory_result: Result<Memory, usize> = Memory::new(get_test_memory_size());
         match memory_result {
-            Ok(result) => {
-                result
-            }
+            Ok(result) => result,
             Err(_) => {
                 panic!("Unable to initialize memory");
             }
