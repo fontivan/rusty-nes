@@ -34,47 +34,52 @@ dependencies {
     // tbd
 }
 
+def RUST_BIN_PATH = "~/.cargo/bin"
+
 task CargoBuild(type: Exec) {
     environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
-    executable = 'cargo'
-    args = ['build']
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo build"]
 }
 
 task CargoRun(type: Exec) {
     environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
-    executable = 'cargo'
-    args = ['run']
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo run"]
 }
 
 task CargoUpdate(type: Exec) {
     environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
-    executable = 'cargo'
-    args = ['update']
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo update"]
 }
 
 task CargoTest(type: Exec) {
     environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
     environment "RUST_BACKTRACE", "1"
-    executable = 'cargo'
-    args = ['test']
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo test"]
 }
 
 task CargoBenchmark(type: Exec) {
     environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
-    executable = 'cargo'
-    args = ['benchmark']
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo benchmark"]
 }
 
 task CargoDoc(type: Exec) {
     environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
-    executable = 'cargo'
-    args = ['doc']
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo doc"]
 }
 
 task CargoCheck(type: Exec) {
     environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
-    executable = 'cargo'
-    args = ['check']
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo check"]
+}
+
+task CargoFmt(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo fmt"]
+}
+
+task CargoClippy(type: Exec) {
+    environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
+    commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo clippy"]
 }
 
 task build(type: Task){
@@ -97,4 +102,9 @@ project.tasks.build {
 
 project.tasks.CargoBuild {
     dependsOn(project.tasks.CargoTest)
+}
+
+project.tasks.CargoTest {
+    dependsOn(project.tasks.CargoFmt)
+    dependsOn(project.tasks.CargoClippy)
 }
