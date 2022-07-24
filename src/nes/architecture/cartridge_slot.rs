@@ -33,7 +33,6 @@ pub struct CartridgeSlot {
 impl CartridgeSlot {
     // Constructor for CartidgeSlot
     pub fn new(file_path: String) -> CartridgeSlot {
-
         // Initialize an empty slot
         let mut cartridge_slot: CartridgeSlot = CartridgeSlot {
             file_path: "".to_string(),
@@ -48,7 +47,6 @@ impl CartridgeSlot {
     }
 
     pub fn load_cartridge(&mut self, file_path: String) {
-
         // If the path is empty then remove the current cartridge
         if file_path == "" {
             self.file_path = "".to_string();

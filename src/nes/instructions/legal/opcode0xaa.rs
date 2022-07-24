@@ -38,6 +38,5 @@ impl Opcode for Opcode0xaa {
         _cpu.x_index = _cpu.accumulator;
 
         _cpu.check_result_for_zero_and_negative_flags(_cpu.x_index)
-
     }
 }

@@ -38,6 +38,5 @@ impl Opcode for Opcode0x98 {
         _cpu.accumulator = _cpu.y_index;
 
         _cpu.check_result_for_zero_and_negative_flags(_cpu.accumulator)
-
     }
 }

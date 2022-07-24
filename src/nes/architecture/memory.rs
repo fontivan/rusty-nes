@@ -35,22 +35,15 @@ pub struct Memory {
 impl Memory {
     // Constructor for Memory
     pub fn new(size: usize) -> Result<Self, usize> {
-
         // Create a zero'd out array of bytes to act as the raw memory
         let raw_memory: Vec<u8> = vec![0; size];
 
         // Create the Memory object and return it
-        return Ok(
-            Memory {
-                size,
-                raw_memory,
-            }
-        );
+        return Ok(Memory { size, raw_memory });
     }
 
     // Helper method used to validate that the inputs to the read/write functions are valid
     fn assert_valid_inputs(&mut self, offset: usize, data_length: usize) {
-
         // If the offset is greater then the size of the memory we have a problem
         // This must be strictly less then, as if the offset was equal to the size then no matter
         // the length it would be a problem
@@ -68,7 +61,6 @@ impl Memory {
 
     // Read a set number of bytes from memory at a provided offset
     pub fn read(&mut self, offset: usize, data_length: usize) -> Vec<u8> {
-
         // Assert that the input offset and length were valid
         self.assert_valid_inputs(offset, data_length);
 
@@ -79,7 +71,6 @@ impl Memory {
 
     // Write a set number of bytes from memory at a provided offset
     pub fn write(&mut self, offset: usize, data: Vec<u8>) {
-
         // Couunt the number of bytes we need to write
         let data_length: usize = data.len();
 
@@ -104,7 +95,6 @@ impl Memory {
         for char in header.chars() {
             raw_header.push(char as u8);
         }
-
 
         // The first three bytes should be 'N' (0x4E), 'E' (0x45), and 'S' (0x53), followed by EOF (0x1A)
         // This is derived from https://wiki.nesdev.com/w/index.php/NES_2.0#Identification
@@ -140,7 +130,6 @@ impl Memory {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -152,7 +141,6 @@ mod tests {
 
     // Helper function for the tests to let them grab a Memory instance for testing
     fn get_test_memory() -> Memory {
-
         // The number of bytes of memory to use for the test
         let memory_result: Result<Memory, usize> = Memory::new(get_test_memory_size());
         match memory_result {
@@ -167,7 +155,6 @@ mod tests {
 
     #[test]
     fn can_create_memory() {
-
         // Fetch a test instance of memory
         let mut memory: Memory = get_test_memory();
 
@@ -177,7 +164,6 @@ mod tests {
 
     #[test]
     fn memory_is_initially_zeroed() {
-
         // Fetch a test instance of memory
         let mut memory: Memory = get_test_memory();
 
@@ -190,7 +176,6 @@ mod tests {
 
     #[test]
     fn can_write_to_memory() {
-
         // This test requires at least 5 bytes in memory
         assert!(get_test_memory_size() > 5);
 
@@ -220,7 +205,6 @@ mod tests {
 
     #[test]
     fn write_sparsely_populated_data() {
-
         // This test requires at least 3 bytes in memory
         assert!(get_test_memory_size() > 3);
 
@@ -248,7 +232,6 @@ mod tests {
     #[test]
     #[should_panic]
     fn read_memory_out_of_bounds() {
-
         // Fetch a test instance of memory
         let mut memory: Memory = get_test_memory();
 
@@ -259,7 +242,6 @@ mod tests {
     #[test]
     #[should_panic]
     fn write_memory_out_of_bounds() {
-
         // This test requires at least 3 bytes in memory
         assert!(get_test_memory_size() > 5);
 

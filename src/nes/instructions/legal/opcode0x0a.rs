@@ -56,6 +56,5 @@ impl Opcode for Opcode0x0a {
         }
 
         _cpu.check_result_for_zero_and_negative_flags(value)
-
     }
 }

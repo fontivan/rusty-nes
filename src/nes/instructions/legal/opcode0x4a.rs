@@ -34,7 +34,6 @@ impl Opcode for Opcode0x4a {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-
         // Fetch the rightmost bit
         let carry: u8 = _cpu.accumulator & 0b0000_0001;
 

@@ -34,7 +34,6 @@ impl Opcode for Opcode0xae {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-
         // Get the operand data from the memory
         let low_byte: u8 = _memory.read((_cpu.program_counter + 1).into(), 1)[0];
 

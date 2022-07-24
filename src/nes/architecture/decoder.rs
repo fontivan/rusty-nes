@@ -22,7 +22,6 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::Cpu;
 use crate::nes::instructions::illegal::opcode0x02::Opcode0x02;
 use crate::nes::instructions::illegal::opcode0x03::Opcode0x03;
 use crate::nes::instructions::illegal::opcode0x04::Opcode0x04;
@@ -280,6 +279,7 @@ use crate::nes::instructions::legal::opcode0xf9::Opcode0xf9;
 use crate::nes::instructions::legal::opcode0xfd::Opcode0xfd;
 use crate::nes::instructions::legal::opcode0xfe::Opcode0xfe;
 use crate::nes::instructions::Opcode;
+use crate::nes::Cpu;
 use crate::nes::Memory;
 
 pub struct Decoder {}

@@ -63,7 +63,7 @@ impl Cpu {
     }
 
     pub fn is_c_set(&mut self) -> bool {
-        return self.flags & 0b0000_0001 == 0b0000_0001
+        return self.flags & 0b0000_0001 == 0b0000_0001;
     }
 
     // Flag bit 1 - Zero
@@ -77,7 +77,7 @@ impl Cpu {
     }
 
     pub fn is_z_set(&mut self) -> bool {
-        return self.flags & 0b0000_0010 == 0b0000_0010
+        return self.flags & 0b0000_0010 == 0b0000_0010;
     }
 
     // Flag bit 2 - Interrupt
@@ -91,7 +91,7 @@ impl Cpu {
     }
 
     pub fn is_i_set(&mut self) -> bool {
-        return self.flags & 0b0000_0100 == 0b0000_0100
+        return self.flags & 0b0000_0100 == 0b0000_0100;
     }
 
     // Flag bit 3 - Decimal
@@ -104,7 +104,7 @@ impl Cpu {
     }
 
     pub fn is_d_set(&mut self) -> bool {
-        return self.flags & 0b0000_0000 == 0b0000_1000
+        return self.flags & 0b0000_0000 == 0b0000_1000;
     }
 
     // Flag bit 4 - Break
@@ -117,7 +117,7 @@ impl Cpu {
     }
 
     pub fn is_b_set(&mut self) -> bool {
-        return self.flags & 0b0001_0000 == 0b0001_0000
+        return self.flags & 0b0001_0000 == 0b0001_0000;
     }
 
     // Flag bit 5 - Unused
@@ -132,7 +132,7 @@ impl Cpu {
     }
 
     pub fn is_v_set(&mut self) -> bool {
-        return self.flags & 0b0100_0000 == 0b0100_0000
+        return self.flags & 0b0100_0000 == 0b0100_0000;
     }
 
     // Flag bit 7 - Negative
@@ -146,12 +146,11 @@ impl Cpu {
     }
 
     pub fn is_n_set(&mut self) -> bool {
-        return self.flags & 0b1000_0000 == 0b1000_0000
+        return self.flags & 0b1000_0000 == 0b1000_0000;
     }
 
     // This function will be called by a large number of instructions to check if the z and n flags should be set
     pub fn check_result_for_zero_and_negative_flags(&mut self, result: u8) {
-
         // If the last result was 0 then the zero flag must be set
         if result == 0 {
             self.set_z_flag()
@@ -165,21 +164,18 @@ impl Cpu {
         } else {
             self.clear_n_flag()
         }
-
     }
 
     // Reset the cpu to the starting conditions
     // This is done in the "After reset" state as described by the nesdev wiki
     // https://wiki.nesdev.com/w/index.php/CPU_power_up_state#After_reset
     pub fn reset(&mut self) {
-
         // Set I flag high
         self.set_i_flag();
 
         // Decrement stack by 3
         self.stack = self.stack - 3;
     }
-
 
     pub fn set_nestest_automation(&mut self) {
         // Automation mode is defined on github
@@ -189,13 +185,11 @@ impl Cpu {
 
     // Execute a clock cycle on the cpu
     pub fn execute_clock_cycle(mut cpu: &mut Cpu, mut memory: &mut Memory) {
-
         // Fetch
         let data: Vec<u8> = memory.read(cpu.program_counter.into(), 2);
         let opcode: u16 = Utils::get_u16_from_u8_pair(data[1], data[0]);
 
         // Decode and execute
         Decoder::execute(cpu, memory, opcode);
-
     }
 }

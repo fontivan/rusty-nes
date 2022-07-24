@@ -24,8 +24,8 @@
 
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
-use crate::nes::instructions::Opcode;
 use crate::nes::architecture::utils::Utils;
+use crate::nes::instructions::Opcode;
 
 pub struct Opcode0x46 {}
 
@@ -35,15 +35,11 @@ impl Opcode for Opcode0x46 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-
         // Get the operand data from the memory
         let low_byte: u8 = _memory.read((_cpu.program_counter + 1).into(), 1)[0];
 
         // Get the address
-        let address: usize = Utils::get_zero_paged_address(
-            0,
-            low_byte,
-        ).into();
+        let address: usize = Utils::get_zero_paged_address(0, low_byte).into();
 
         // Fetch the data from memory
         let mut data: u8 = _memory.read(address, 1)[0];

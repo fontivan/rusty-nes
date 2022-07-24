@@ -24,8 +24,8 @@
 
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
-use crate::nes::instructions::Opcode;
 use crate::nes::architecture::utils::Utils;
+use crate::nes::instructions::Opcode;
 
 pub struct Opcode0x5e {}
 
@@ -35,7 +35,6 @@ impl Opcode for Opcode0x5e {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-
         // Get the operand data from the memory
         let low_byte: u8 = _memory.read((_cpu.program_counter + 1).into(), 1)[0];
         let high_byte: u8 = _memory.read((_cpu.program_counter + 2).into(), 1)[0];
@@ -44,7 +43,8 @@ impl Opcode for Opcode0x5e {
         let address: usize = Utils::get_absolute_address(
             _cpu.x_index,
             Utils::get_u16_from_u8_pair(low_byte, high_byte),
-        ).into();
+        )
+        .into();
 
         // Fetch the data from memory using the x index as an offset
         let mut data: u8 = _memory.read(address, 1)[0];

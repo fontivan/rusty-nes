@@ -38,6 +38,5 @@ impl Opcode for Opcode0xe8 {
         _cpu.x_index = _cpu.x_index + 1;
 
         _cpu.check_result_for_zero_and_negative_flags(_cpu.x_index)
-
     }
 }
