@@ -30,7 +30,7 @@ pub struct Opcode0x2a {}
 
 impl Opcode for Opcode0x2a {
     fn get_name() -> String {
-        return "0x2a".to_string();
+        "0x2a".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
@@ -43,11 +43,11 @@ impl Opcode for Opcode0x2a {
         let high_bit = value & 0b1000_0000;
 
         // Shift the value
-        value = value << 1;
+        value <<= 1;
 
         // Set the lowest bit to be the value from the carry flag
         if _cpu.is_c_set() {
-            value = value | 0b0000_0001;
+            value |= 0b0000_0001;
         }
 
         // Save the value back to the accumulator

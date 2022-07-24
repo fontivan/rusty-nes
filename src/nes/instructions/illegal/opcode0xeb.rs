@@ -30,7 +30,7 @@ pub struct Opcode0xeb {}
 
 impl Opcode for Opcode0xeb {
     fn get_name() -> String {
-        return "0xeb".to_string();
+        "0xeb".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {

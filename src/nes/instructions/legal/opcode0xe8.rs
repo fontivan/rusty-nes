@@ -30,12 +30,12 @@ pub struct Opcode0xe8 {}
 
 impl Opcode for Opcode0xe8 {
     fn get_name() -> String {
-        return "0xe8".to_string();
+        "0xe8".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Increment the x register
-        _cpu.x_index = _cpu.x_index + 1;
+        _cpu.x_index += 1;
 
         _cpu.check_result_for_zero_and_negative_flags(_cpu.x_index)
     }

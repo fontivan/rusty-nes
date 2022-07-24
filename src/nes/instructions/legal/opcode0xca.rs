@@ -30,12 +30,12 @@ pub struct Opcode0xca {}
 
 impl Opcode for Opcode0xca {
     fn get_name() -> String {
-        return "0xca".to_string();
+        "0xca".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Decrement the x register
-        _cpu.x_index = _cpu.x_index - 1;
+        _cpu.x_index -= 1;
 
         _cpu.check_result_for_zero_and_negative_flags(_cpu.x_index)
     }

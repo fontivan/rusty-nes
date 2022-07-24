@@ -42,111 +42,111 @@ impl Cpu {
     // This is done in the "Power Up" state as described by the nesdev wiki
     // https://wiki.nesdev.com/w/index.php/CPU_power_up_state#At_power-up
     pub fn new() -> Cpu {
-        return Cpu {
+        Cpu {
             accumulator: 0,
             flags: 0,
             program_counter: 0x34,
             stack: 0xFD,
             x_index: 0,
             y_index: 0,
-        };
+        }
     }
 
     // Flag bit 0 - Carry
     // Set when the accumulator rolls over from 0xFF to 0x00, or as part of some operations
     pub fn set_c_flag(&mut self) {
-        self.flags = self.flags | 0b0000_0001;
+        self.flags |= 0b0000_0001;
     }
 
     pub fn clear_c_flag(&mut self) {
-        self.flags = self.flags & 0b1111_1110;
+        self.flags &= 0b1111_1110;
     }
 
     pub fn is_c_set(&mut self) -> bool {
-        return self.flags & 0b0000_0001 == 0b0000_0001;
+        self.flags & 0b0000_0001 == 0b0000_0001
     }
 
     // Flag bit 1 - Zero
     // Set when the result of most instructions is 0x00
     pub fn set_z_flag(&mut self) {
-        self.flags = self.flags | 0b0000_0010;
+        self.flags |= 0b0000_0010;
     }
 
     pub fn clear_z_flag(&mut self) {
-        self.flags = self.flags & 0b1111_1101;
+        self.flags &= 0b1111_1101;
     }
 
     pub fn is_z_set(&mut self) -> bool {
-        return self.flags & 0b0000_0010 == 0b0000_0010;
+        self.flags & 0b0000_0010 == 0b0000_0010
     }
 
     // Flag bit 2 - Interrupt
     // Set when various interrupt methods are called
     pub fn set_i_flag(&mut self) {
-        self.flags = self.flags | 0b0000_0100;
+        self.flags |= 0b0000_0100;
     }
 
     pub fn clear_i_flag(&mut self) {
-        self.flags = self.flags & 0b1111_1011;
+        self.flags &= 0b1111_1011;
     }
 
     pub fn is_i_set(&mut self) -> bool {
-        return self.flags & 0b0000_0100 == 0b0000_0100;
+        self.flags & 0b0000_0100 == 0b0000_0100
     }
 
     // Flag bit 3 - Decimal
     pub fn set_d_flag(&mut self) {
-        self.flags = self.flags | 0b0000_1000;
+        self.flags |= 0b0000_1000;
     }
 
     pub fn clear_d_flag(&mut self) {
-        self.flags = self.flags & 0b1111_0111;
+        self.flags &= 0b1111_0111;
     }
 
     pub fn is_d_set(&mut self) -> bool {
-        return self.flags & 0b0000_0000 == 0b0000_1000;
+        self.flags & 0b0000_0000 == 0b0000_1000
     }
 
     // Flag bit 4 - Break
     pub fn set_b_flag(&mut self) {
-        self.flags = self.flags | 0b0001_0000;
+        self.flags |= 0b0001_0000;
     }
 
     pub fn clear_b_flag(&mut self) {
-        self.flags = self.flags & 0b1110_1111;
+        self.flags &= 0b1110_1111;
     }
 
     pub fn is_b_set(&mut self) -> bool {
-        return self.flags & 0b0001_0000 == 0b0001_0000;
+        self.flags & 0b0001_0000 == 0b0001_0000
     }
 
     // Flag bit 5 - Unused
 
     // Flag bit 6 - Overflow
     pub fn set_v_flag(&mut self) {
-        self.flags = self.flags | 0b0100_0000;
+        self.flags |= 0b0100_0000;
     }
 
     pub fn clear_v_flag(&mut self) {
-        self.flags = self.flags & 0b1011_1111;
+        self.flags &= 0b1011_1111;
     }
 
     pub fn is_v_set(&mut self) -> bool {
-        return self.flags & 0b0100_0000 == 0b0100_0000;
+        self.flags & 0b0100_0000 == 0b0100_0000
     }
 
     // Flag bit 7 - Negative
     // Set when the highest bit of the result is also set
     pub fn set_n_flag(&mut self) {
-        self.flags = self.flags | 0b1000_0000;
+        self.flags |= 0b1000_0000;
     }
 
     pub fn clear_n_flag(&mut self) {
-        self.flags = self.flags & 0b0111_1111;
+        self.flags &= 0b0111_1111;
     }
 
     pub fn is_n_set(&mut self) -> bool {
-        return self.flags & 0b1000_0000 == 0b1000_0000;
+        self.flags & 0b1000_0000 == 0b1000_0000
     }
 
     // This function will be called by a large number of instructions to check if the z and n flags should be set
@@ -174,7 +174,7 @@ impl Cpu {
         self.set_i_flag();
 
         // Decrement stack by 3
-        self.stack = self.stack - 3;
+        self.stack -= 3;
     }
 
     pub fn set_nestest_automation(&mut self) {
@@ -184,7 +184,7 @@ impl Cpu {
     }
 
     // Execute a clock cycle on the cpu
-    pub fn execute_clock_cycle(mut cpu: &mut Cpu, mut memory: &mut Memory) {
+    pub fn execute_clock_cycle(cpu: &mut Cpu, memory: &mut Memory) {
         // Fetch
         let data: Vec<u8> = memory.read(cpu.program_counter.into(), 2);
         let opcode: u16 = Utils::get_u16_from_u8_pair(data[1], data[0]);

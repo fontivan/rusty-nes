@@ -30,7 +30,7 @@ pub struct Opcode0x4a {}
 
 impl Opcode for Opcode0x4a {
     fn get_name() -> String {
-        return "0x4a".to_string();
+        "0x4a".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
@@ -38,10 +38,10 @@ impl Opcode for Opcode0x4a {
         let carry: u8 = _cpu.accumulator & 0b0000_0001;
 
         // Rotate the bits in the accumlator to the right by 1 bit
-        _cpu.accumulator = _cpu.accumulator >> 1;
+        _cpu.accumulator >>= 1;
 
         // Load a zero into the leftmost bit
-        _cpu.accumulator = _cpu.accumulator & 0b1000_0000;
+        _cpu.accumulator &= 0b1000_0000;
 
         // If data is now zero, then set the zero flag high
         if _cpu.accumulator == 0 {

@@ -63,11 +63,11 @@ impl Nes {
         let cartridge_slot: CartridgeSlot = CartridgeSlot::new("".to_string());
 
         // Construct the Nes
-        return Nes {
+        Nes {
             cartridge_slot,
             cpu,
             memory,
-        };
+        }
     }
 
     fn dump_memory(&mut self) {

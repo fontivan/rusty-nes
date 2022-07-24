@@ -39,7 +39,7 @@ impl Memory {
         let raw_memory: Vec<u8> = vec![0; size];
 
         // Create the Memory object and return it
-        return Ok(Memory { size, raw_memory });
+        Ok(Memory { size, raw_memory })
     }
 
     // Helper method used to validate that the inputs to the read/write functions are valid
@@ -56,7 +56,7 @@ impl Memory {
 
     // Get the size of the memory
     pub fn get_size(&mut self) -> usize {
-        return self.size;
+        self.size
     }
 
     // Read a set number of bytes from memory at a provided offset
@@ -66,7 +66,7 @@ impl Memory {
 
         // Each element in the array is one byte
         // Therefore we want to return a number of elements, where the number is the number of bytes
-        return self.raw_memory[offset..(offset + data_length)].to_vec();
+        self.raw_memory[offset..(offset + data_length)].to_vec()
     }
 
     // Write a set number of bytes from memory at a provided offset
@@ -136,7 +136,7 @@ mod tests {
 
     // The number of bytes to be used by the test memory
     fn get_test_memory_size() -> usize {
-        return 8;
+        8
     }
 
     // Helper function for the tests to let them grab a Memory instance for testing
@@ -145,7 +145,7 @@ mod tests {
         let memory_result: Result<Memory, usize> = Memory::new(get_test_memory_size());
         match memory_result {
             Ok(result) => {
-                return result;
+                result
             }
             Err(_) => {
                 panic!("Unable to initialize memory");

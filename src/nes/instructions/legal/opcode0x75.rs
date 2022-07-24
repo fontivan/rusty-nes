@@ -30,7 +30,7 @@ pub struct Opcode0x75 {}
 
 impl Opcode for Opcode0x75 {
     fn get_name() -> String {
-        return "0x75".to_string();
+        "0x75".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {

@@ -30,7 +30,7 @@ pub struct Opcode0x0a {}
 
 impl Opcode for Opcode0x0a {
     fn get_name() -> String {
-        return "0x0a".to_string();
+        "0x0a".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
@@ -43,7 +43,7 @@ impl Opcode for Opcode0x0a {
         let high_bit = value & 0b1000_0000;
 
         // Shift the value
-        value = value << 1;
+        value <<= 1;
 
         // Save the value back to the accumulator
         _cpu.accumulator = value;

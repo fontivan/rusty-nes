@@ -31,7 +31,7 @@ pub struct Opcode0x46 {}
 
 impl Opcode for Opcode0x46 {
     fn get_name() -> String {
-        return "0x46".to_string();
+        "0x46".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
@@ -48,10 +48,10 @@ impl Opcode for Opcode0x46 {
         let carry: u8 = data & 0b0000_0001;
 
         // Rotate the bits right by 1 bit
-        data = data >> 1;
+        data >>= 1;
 
         // Set leftmost bit to 0
-        data = data & 0b0111_1111;
+        data &= 0b0111_1111;
 
         // Write the data back to memory
         _memory.write(address, [data].to_vec());

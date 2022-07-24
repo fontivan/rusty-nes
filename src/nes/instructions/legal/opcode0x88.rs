@@ -30,12 +30,12 @@ pub struct Opcode0x88 {}
 
 impl Opcode for Opcode0x88 {
     fn get_name() -> String {
-        return "0x88".to_string();
+        "0x88".to_string()
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Decrement the y index
-        _cpu.y_index = _cpu.y_index - 1;
+        _cpu.y_index -= 1;
 
         _cpu.check_result_for_zero_and_negative_flags(_cpu.y_index)
     }

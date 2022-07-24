@@ -287,7 +287,7 @@ pub struct Decoder {}
 // This is mostly boilerplate to connect the cpu and instructions.
 // This is used to prevent polluting cpu.rs with a thousand lines of boilerplate.
 impl Decoder {
-    pub fn execute(mut cpu: &mut Cpu, mut memory: &mut Memory, opcode: u16) {
+    pub fn execute(cpu: &mut Cpu, memory: &mut Memory, opcode: u16) {
         match opcode {
             0x00 => {
                 Opcode0x00::execute(cpu, memory);

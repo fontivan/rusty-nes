@@ -43,12 +43,12 @@ impl CartridgeSlot {
         cartridge_slot.load_cartridge(file_path);
 
         // Return the cartridge slot
-        return cartridge_slot;
+        cartridge_slot
     }
 
     pub fn load_cartridge(&mut self, file_path: String) {
         // If the path is empty then remove the current cartridge
-        if file_path == "" {
+        if file_path.is_empty() {
             self.file_path = "".to_string();
             self.rom_contents = "".to_string();
             return;
