@@ -24,6 +24,7 @@
 
 plugins {
     id 'maven-publish'
+    id "de.undercouch.download" version "5.1.0"
 }
 
 repositories {
@@ -35,6 +36,8 @@ dependencies {
 }
 
 def RUST_BIN_PATH = "~/.cargo/bin"
+def TEST_ROM_PATH = "${project.projectDir}/build/target/debug/"
+def TEST_ROM_NAME = "nestest.nes"
 
 task CargoBuild(type: Exec) {
     environment "CARGO_TARGET_DIR", "${project.projectDir}/build/target"
@@ -82,6 +85,17 @@ task CargoClippy(type: Exec) {
     commandLine = ["bash", "-c", "${RUST_BIN_PATH}/cargo clippy"]
 }
 
+task DownloadTestRom(type: Download) {
+    src 'https://github.com/christopherpow/nes-test-roms/raw/master/other/nestest.nes'
+    dest "${TEST_ROM_PATH}/${TEST_ROM_NAME}"
+}
+
+task ValidateTestRom(type: Verify) {
+    src new File("${TEST_ROM_PATH}", "${TEST_ROM_NAME}")
+    algorithm 'SHA512'
+    checksum '08b34fb1198632718af148d6c573c3a6bc49d49f3f4d63dde98daefb4c29ea5a8786022157016171bc958385481e78cc447d3b98248b4d0214dea9b9e8c213d2'
+}
+
 task build(type: Task){
     dependsOn(project.tasks.CargoBuild)
     doFirst{
@@ -107,4 +121,9 @@ project.tasks.CargoBuild {
 project.tasks.CargoTest {
     dependsOn(project.tasks.CargoFmt)
     dependsOn(project.tasks.CargoClippy)
+    dependsOn(project.tasks.ValidateTestRom)
+}
+
+project.tasks.ValidateTestRom {
+    dependsOn(project.tasks.DownloadTestRom)
 }
