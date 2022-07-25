@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::architecture::utils::Utils;
 use crate::nes::instructions::Opcode;
@@ -39,7 +40,10 @@ impl Opcode for Opcode0x06 {
         // Arithmetic shift left on a zero page address
 
         // Get the address offset
-        let argument: u16 = _memory.get_instruction_argument(_cpu.program_counter + 1, 2);
+        let argument: u16 = _memory.get_instruction_argument(_cpu.program_counter, 2);
+
+        // Increase PC by amount of bytes read
+        _cpu.register_add(Register::ProgramCounter, 2);
 
         // Get the final address in memory
         let address: u16 = Utils::get_zero_paged_address(0, argument.try_into().unwrap());
@@ -91,6 +95,7 @@ mod tests {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
         memory.write(0, [0x06, 0x44].to_vec());
         memory.write(0x44, [0b0101_1010].to_vec());
 
@@ -103,6 +108,7 @@ mod tests {
         assert!(!cpu.is_c_set());
         assert!(!cpu.is_z_set());
         assert!(cpu.is_n_set());
+        assert_eq!(cpu.program_counter, 0x03);
     }
 
     #[test]
@@ -110,6 +116,7 @@ mod tests {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
         memory.write(0, [0x06, 0x44].to_vec());
         memory.write(0x44, [0b1101_1010].to_vec());
 
@@ -122,5 +129,6 @@ mod tests {
         assert!(cpu.is_c_set());
         assert!(!cpu.is_z_set());
         assert!(cpu.is_n_set());
+        assert_eq!(cpu.program_counter, 0x03);
     }
 }

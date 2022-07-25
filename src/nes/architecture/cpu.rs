@@ -183,7 +183,7 @@ impl Cpu {
                 panic!("Should not be adding integers to flag register")
             }
             Register::ProgramCounter => {
-                let mut result: isize = self.accumulator.into();
+                let mut result: isize = isize::try_from(self.program_counter).unwrap();
                 result = result + operand;
                 if result > isize::try_from(std::u16::MAX).unwrap() {
                     self.set_v_flag();
@@ -300,7 +300,86 @@ impl Cpu {
         // Fetch
         let data: Vec<u8> = memory.read(cpu.program_counter.into(), 1);
 
+        // Increment program counter
+        cpu.register_add(Register::ProgramCounter, 1);
+
         // Decode and execute
         Decoder::execute(cpu, memory, data[0]);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_cpu() -> Cpu {
+        // Get a cpu
+        let mut cpu: Cpu = Cpu::new();
+        cpu.program_counter = 0x00;
+        return cpu;
+    }
+
+    fn get_test_memory() -> Memory {
+        // Get a memory
+        let memory_size: usize = 1024;
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
+        let mut memory: Memory = memory_result.unwrap();
+        return memory;
+    }
+
+    // #[test]
+    fn accumulator_add() {
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+
+        let data: Vec<u8> = [0xA9, 0x01, 0x69, 0x03].to_vec();
+
+        memory.write(0, data);
+        cpu.program_counter = 0x00;
+
+        // Execute two cycles
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+
+        // Validate result
+        assert_eq!(cpu.accumulator, 0x04);
+    }
+
+    // #[test]
+    fn x_increment() {
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+
+        let data: Vec<u8> = [0xA2, 0x01, 0xE8, 0xE8, 0xE8].to_vec();
+
+        memory.write(0, data);
+        cpu.program_counter = 0x00;
+
+        // Execute three cycles
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+
+        // Validate result
+        assert_eq!(cpu.x_index, 0x04);
+    }
+
+    // #[test]
+    fn y_decrement() {
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+
+        let data: Vec<u8> = [0xA2, 0x0F, 0x88, 0x88, 0x88].to_vec();
+
+        memory.write(0, data);
+        cpu.program_counter = 0x00;
+
+        // Execute three cycles
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+
+        // Validate result
+        assert_eq!(cpu.x_index, 0x0C);
     }
 }

@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::instructions::Opcode;
 
@@ -37,7 +38,10 @@ impl Opcode for Opcode0x0e {
         // Arithmetic shift left on an absolute page address
 
         // Get the address offset
-        let address: u16 = _memory.get_instruction_argument(_cpu.program_counter + 1, 4);
+        let address: u16 = _memory.get_instruction_argument(_cpu.program_counter, 4);
+
+        // Increase PC by amount of bytes read
+        _cpu.register_add(Register::ProgramCounter, 4);
 
         // Read the value
         let mut value = _memory.read(address.into(), 1)[0];
@@ -86,6 +90,7 @@ mod tests {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
         memory.write(0, [0x06, 0x44, 0x00].to_vec());
         memory.write(0x4400, [0b0101_1010].to_vec());
 
@@ -105,6 +110,7 @@ mod tests {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
         memory.write(0, [0x06, 0x44, 0x00].to_vec());
         memory.write(0x4400, [0b1101_1010].to_vec());
 

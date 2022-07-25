@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::architecture::utils::Utils;
 use crate::nes::instructions::Opcode;
@@ -36,7 +37,10 @@ impl Opcode for Opcode0x5e {
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Get the operand data from the memory
-        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter + 1, 4);
+        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter, 4);
+
+        // Increase PC by amount of bytes read
+        _cpu.register_add(Register::ProgramCounter, 4);
 
         // Get the address
         let address: usize = Utils::get_absolute_address(_cpu.x_index, instruction_arg).into();
@@ -96,6 +100,7 @@ mod tests {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
         memory.write(0, [0x5e, 0x44, 0x00, 0x58].to_vec());
         memory.write(0x4400 + 0xF0, [0b1010_1010].to_vec());
 
@@ -109,6 +114,7 @@ mod tests {
         let result: u8 = memory.read(0x4400 + 0xF0, 1)[0];
         assert_eq!(result, 0b0101_0101);
         assert!(!cpu.is_c_set());
+        assert_eq!(cpu.program_counter, 0x05);
     }
 
     #[test]
@@ -116,6 +122,7 @@ mod tests {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
         memory.write(0, [0x5e, 0x44, 0x00, 0x58].to_vec());
         memory.write(0x4400 + 0xF0, [0b1010_0101].to_vec());
 
@@ -129,5 +136,6 @@ mod tests {
         let result: u8 = memory.read(0x4400 + 0xF0, 1)[0];
         assert_eq!(result, 0b0101_0010);
         assert!(cpu.is_c_set());
+        assert_eq!(cpu.program_counter, 0x05);
     }
 }

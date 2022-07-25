@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::instructions::Opcode;
 
@@ -37,7 +38,7 @@ impl Opcode for Opcode0x00 {
         // Break
 
         // Increment program counter by one
-        _cpu.program_counter = _cpu.program_counter + 1;
+        _cpu.register_add(Register::ProgramCounter, 1);
 
         // Set interrupt flag
         _cpu.set_i_flag();
@@ -75,5 +76,6 @@ mod tests {
         // Assert results
         assert_eq!(cpu.program_counter, 0x01);
         assert!(cpu.is_i_set());
+        assert_eq!(cpu.program_counter, 0x01);
     }
 }

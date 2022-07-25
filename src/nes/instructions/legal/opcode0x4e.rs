@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::architecture::utils::Utils;
 use crate::nes::instructions::Opcode;
@@ -36,12 +37,13 @@ impl Opcode for Opcode0x4e {
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Get the operand data from the memory
-        let low_byte: u8 = _memory.read((_cpu.program_counter + 1).into(), 1)[0];
-        let high_byte: u8 = _memory.read((_cpu.program_counter + 2).into(), 1)[0];
+        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter, 4);
+
+        // Increase PC by amount of bytes read
+        _cpu.register_add(Register::ProgramCounter, 2);
 
         // Get the address
-        let address: usize =
-            Utils::get_absolute_address(0, Utils::get_u16_from_u8_pair(high_byte, low_byte)).into();
+        let address: usize = Utils::get_absolute_address(0, instruction_arg).into();
 
         // Fetch the data from memory
         let mut data: u8 = _memory.read(address, 1)[0];
@@ -74,5 +76,65 @@ impl Opcode for Opcode0x4e {
 
         // Shift right inserts 1 into bit 7, so N will always be cleared
         _cpu.clear_n_flag();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_cpu() -> Cpu {
+        // Get a cpu
+        let mut cpu: Cpu = Cpu::new();
+        cpu.program_counter = 0x00;
+        return cpu;
+    }
+
+    fn get_test_memory() -> Memory {
+        // Get a memory
+        let memory_size: usize = 18000;
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
+        let mut memory: Memory = memory_result.unwrap();
+        return memory;
+    }
+
+    #[test]
+    fn test_without_carry() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
+        memory.write(0, [0x06, 0x44, 0x00].to_vec());
+        memory.write(0x4400, [0b0101_1010].to_vec());
+
+        // Execute instruction
+        Opcode0x4e::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        let result: u8 = memory.read(0x4400, 1)[0];
+        assert_eq!(result, 0b0010_1101);
+        assert!(!cpu.is_c_set());
+        assert!(!cpu.is_z_set());
+        assert!(!cpu.is_n_set());
+    }
+
+    #[test]
+    fn test_with_carry() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
+        memory.write(0, [0x06, 0x44, 0x00].to_vec());
+        memory.write(0x4400, [0b1101_1011].to_vec());
+
+        // Execute instruction
+        Opcode0x4e::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        let result: u8 = memory.read(0x4400, 1)[0];
+        assert_eq!(result, 0b0110_1101);
+        assert!(cpu.is_c_set());
+        assert!(!cpu.is_z_set());
+        assert!(!cpu.is_n_set());
     }
 }
