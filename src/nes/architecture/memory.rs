@@ -22,8 +22,6 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::architecture::utils::Utils;
-
 // Structure for Memory
 pub struct Memory {
     // The size of the memory pool in bytes

@@ -24,7 +24,9 @@
 
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::architecture::utils::Utils;
 use crate::nes::instructions::Opcode;
+use std::convert::TryInto;
 
 pub struct Opcode0x06 {}
 
@@ -34,6 +36,91 @@ impl Opcode for Opcode0x06 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x06' is not implemented")
+        // Arithmetic shift left on a zero page address
+
+        // Get the address offset
+        let argument: u16 = _memory.get_instruction_argument(_cpu.program_counter + 1, 2);
+
+        // Get the final address in memory
+        let address: u16 = Utils::get_zero_paged_address(0, argument.try_into().unwrap());
+
+        // Read the value
+        let mut value = _memory.read(address.into(), 1)[0];
+
+        // The carry would be lose by the bitwise shift below so we need to snag it first
+        let carry = value & 0b1000_0000 == 0b1000_0000;
+
+        // Shift left
+        value <<= 1;
+
+        // Check for one in bit 0
+        if carry {
+            // Set the carry bit
+            _cpu.set_c_flag();
+        }
+
+        // Check for 0 or negative flags
+        _cpu.check_result_for_zero_and_negative_flags(value);
+
+        // Write the new data back into memory
+        _memory.write(address.into(), [value].to_vec());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_cpu() -> Cpu {
+        // Get a cpu
+        let mut cpu: Cpu = Cpu::new();
+        cpu.program_counter = 0x00;
+        return cpu;
+    }
+
+    fn get_test_memory() -> Memory {
+        // Get a memory
+        let memory_size: usize = 1024;
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
+        let mut memory: Memory = memory_result.unwrap();
+        return memory;
+    }
+
+    #[test]
+    fn test_without_carry() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        memory.write(0, [0x06, 0x44].to_vec());
+        memory.write(0x44, [0b0101_1010].to_vec());
+
+        // Execute instruction
+        Opcode0x06::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        let result: u8 = memory.read(0x44, 1)[0];
+        assert_eq!(result, 0b1011_0100);
+        assert!(!cpu.is_c_set());
+        assert!(!cpu.is_z_set());
+        assert!(cpu.is_n_set());
+    }
+
+    #[test]
+    fn test_with_carry() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        memory.write(0, [0x06, 0x44].to_vec());
+        memory.write(0x44, [0b1101_1010].to_vec());
+
+        // Execute instruction
+        Opcode0x06::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        let result: u8 = memory.read(0x44, 1)[0];
+        assert_eq!(result, 0b1011_0100);
+        assert!(cpu.is_c_set());
+        assert!(!cpu.is_z_set());
+        assert!(cpu.is_n_set());
     }
 }

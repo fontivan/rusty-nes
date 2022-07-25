@@ -24,7 +24,6 @@
 
 use crate::nes::architecture::decoder::Decoder;
 use crate::nes::architecture::memory::Memory;
-use crate::nes::architecture::utils::Utils;
 
 pub struct Cpu {
     pub accumulator: u8,
