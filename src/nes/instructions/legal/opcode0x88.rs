@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::instructions::Opcode;
 
@@ -35,8 +36,95 @@ impl Opcode for Opcode0x88 {
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Decrement the y index
-        _cpu.y_index -= 1;
+        _cpu.register_add(Register::YIndex, -1);
 
         _cpu.check_result_for_zero_and_negative_flags(_cpu.y_index)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_cpu() -> Cpu {
+        // Get a cpu
+        let mut cpu: Cpu = Cpu::new();
+        cpu.program_counter = 0x00;
+        return cpu;
+    }
+
+    fn get_test_memory() -> Memory {
+        // Get a memory
+        let memory_size: usize = 1;
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
+        let mut memory: Memory = memory_result.unwrap();
+        return memory;
+    }
+
+    #[test]
+    fn test_no_flags() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.y_index = 0x0F;
+
+        // Execute instruction
+        Opcode0x88::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.y_index, 0x0E);
+        assert!(!cpu.is_z_set());
+        assert!(!cpu.is_n_set());
+    }
+
+    #[test]
+    fn test_n_flag() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.y_index = 0xF1;
+
+        // Execute instruction
+        Opcode0x88::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.y_index, 0xF0);
+        assert!(!cpu.is_z_set());
+        assert!(cpu.is_n_set());
+    }
+
+    #[test]
+    fn test_z_flag() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.y_index = 0x01;
+
+        // Execute instruction
+        Opcode0x88::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.y_index, 0x00);
+        assert!(cpu.is_z_set());
+        assert!(!cpu.is_n_set());
+    }
+
+    #[test]
+    fn test_underflow() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.y_index = 0x00;
+
+        // Execute instruction
+        // This is intentionally run three times
+        Opcode0x88::execute(&mut cpu, &mut memory);
+        Opcode0x88::execute(&mut cpu, &mut memory);
+        Opcode0x88::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.y_index, 0xFC);
+        assert!(!cpu.is_z_set());
+        assert!(cpu.is_n_set());
     }
 }

@@ -24,6 +24,16 @@
 
 use crate::nes::architecture::decoder::Decoder;
 use crate::nes::architecture::memory::Memory;
+use std::convert::TryFrom;
+
+pub enum Register {
+    Accumulator,
+    Flags,
+    ProgramCounter,
+    Stack,
+    XIndex,
+    YIndex,
+}
 
 pub struct Cpu {
     pub accumulator: u8,
@@ -148,6 +158,109 @@ impl Cpu {
         self.flags & 0b1000_0000 == 0b1000_0000
     }
 
+    pub fn register_add(&mut self, register: Register, operand: isize) {
+        match register {
+            Register::Accumulator => {
+                let mut result: isize = self.accumulator.into();
+                result = result + operand;
+                if result > std::u8::MAX.into() {
+                    self.set_v_flag();
+                    result &= 0b0000_0000_1111_1111;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u8::try_from(result) {
+                    Ok(result) => {
+                        self.accumulator = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+            Register::Flags => {
+                panic!("Should not be adding integers to flag register")
+            }
+            Register::ProgramCounter => {
+                let mut result: isize = self.accumulator.into();
+                result = result + operand;
+                if result > isize::try_from(std::u16::MAX).unwrap() {
+                    self.set_v_flag();
+                    result &= 0x00FF;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u16::try_from(result) {
+                    Ok(result) => {
+                        self.program_counter = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+            Register::Stack => {
+                let mut result: isize = self.stack.into();
+                result = result + operand;
+                if result > std::u8::MAX.into() {
+                    self.set_v_flag();
+                    result &= 0b0000_0000_1111_1111;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u8::try_from(result) {
+                    Ok(result) => {
+                        self.stack = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+            Register::XIndex => {
+                let mut result: isize = self.x_index.into();
+                result = result + operand;
+                if result > std::u8::MAX.into() {
+                    self.set_v_flag();
+                    result &= 0b0000_0000_1111_1111;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u8::try_from(result) {
+                    Ok(result) => {
+                        self.x_index = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+            Register::YIndex => {
+                let mut result: isize = self.y_index.into();
+                result = result + operand;
+                if result > std::u8::MAX.into() {
+                    self.set_v_flag();
+                    result &= 0b0000_0000_1111_1111;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u8::try_from(result) {
+                    Ok(result) => {
+                        self.y_index = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+        }
+    }
+
     // This function will be called by a large number of instructions to check if the z and n flags should be set
     pub fn check_result_for_zero_and_negative_flags(&mut self, result: u8) {
         // If the last result was 0 then the zero flag must be set
@@ -173,7 +286,7 @@ impl Cpu {
         self.set_i_flag();
 
         // Decrement stack by 3
-        self.stack -= 3;
+        self.register_add(Register::Stack, -3);
     }
 
     pub fn set_nestest_automation(&mut self) {

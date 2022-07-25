@@ -36,27 +36,19 @@ impl Opcode for Opcode0x5e {
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Get the operand data from the memory
-        let low_byte: u8 = _memory.read((_cpu.program_counter + 1).into(), 1)[0];
-        let high_byte: u8 = _memory.read((_cpu.program_counter + 2).into(), 1)[0];
+        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter + 1, 4);
 
         // Get the address
-        let address: usize = Utils::get_absolute_address(
-            _cpu.x_index,
-            Utils::get_u16_from_u8_pair(high_byte, low_byte),
-        )
-        .into();
+        let address: usize = Utils::get_absolute_address(_cpu.x_index, instruction_arg).into();
 
         // Fetch the data from memory using the x index as an offset
         let mut data: u8 = _memory.read(address, 1)[0];
 
         // Fetch the rightmost bit
-        let carry: u8 = data & 0b0000_0001;
+        let carry: bool = data & 0b0000_0001 == 0b0000_0001;
 
         // Rotate the bits right by 1 bit
         data >>= 1;
-
-        // Set leftmost bit to 0
-        data &= 0b0111_1111;
 
         // Write the data back to memory
         _memory.write(address, [data].to_vec());
@@ -69,13 +61,73 @@ impl Opcode for Opcode0x5e {
         }
 
         // Set carry flag to the value of the rightmost bit
-        if carry == 0 {
-            _cpu.clear_c_flag();
-        } else {
+        if carry {
             _cpu.set_c_flag();
+        } else {
+            _cpu.clear_c_flag();
         }
 
         // Shift right inserts 1 into bit 7, so N will always be cleared
         _cpu.clear_n_flag();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_cpu() -> Cpu {
+        // Get a cpu
+        let mut cpu: Cpu = Cpu::new();
+        cpu.program_counter = 0x00;
+        return cpu;
+    }
+
+    fn get_test_memory() -> Memory {
+        // Get a memory
+        let memory_size: usize = 18000;
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
+        let mut memory: Memory = memory_result.unwrap();
+        return memory;
+    }
+
+    #[test]
+    fn test_without_carry() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        memory.write(0, [0x5e, 0x44, 0x00, 0x58].to_vec());
+        memory.write(0x4400 + 0xF0, [0b1010_1010].to_vec());
+
+        cpu.x_index = 0xF0;
+        cpu.clear_c_flag();
+
+        // Execute instruction
+        Opcode0x5e::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        let result: u8 = memory.read(0x4400 + 0xF0, 1)[0];
+        assert_eq!(result, 0b0101_0101);
+        assert!(!cpu.is_c_set());
+    }
+
+    #[test]
+    fn test_with_carry() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        memory.write(0, [0x5e, 0x44, 0x00, 0x58].to_vec());
+        memory.write(0x4400 + 0xF0, [0b1010_0101].to_vec());
+
+        cpu.x_index = 0xF0;
+        cpu.clear_c_flag();
+
+        // Execute instruction
+        Opcode0x5e::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        let result: u8 = memory.read(0x4400 + 0xF0, 1)[0];
+        assert_eq!(result, 0b0101_0010);
+        assert!(cpu.is_c_set());
     }
 }

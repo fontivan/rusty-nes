@@ -40,3 +40,72 @@ impl Opcode for Opcode0x98 {
         _cpu.check_result_for_zero_and_negative_flags(_cpu.accumulator)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_cpu() -> Cpu {
+        // Get a cpu
+        let mut cpu: Cpu = Cpu::new();
+        cpu.program_counter = 0x00;
+        return cpu;
+    }
+
+    fn get_test_memory() -> Memory {
+        // Get a memory
+        let memory_size: usize = 1;
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
+        let mut memory: Memory = memory_result.unwrap();
+        return memory;
+    }
+
+    #[test]
+    fn test_no_flags() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.y_index = 0x0F;
+
+        // Execute instruction
+        Opcode0x98::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.accumulator, 0x0F);
+        assert!(!cpu.is_z_set());
+        assert!(!cpu.is_n_set());
+    }
+
+    #[test]
+    fn test_n_flag() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.y_index = 0xF0;
+
+        // Execute instruction
+        Opcode0x98::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.accumulator, 0xF0);
+        assert!(!cpu.is_z_set());
+        assert!(cpu.is_n_set());
+    }
+
+    #[test]
+    fn test_z_flag() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.accumulator = 0x01;
+        cpu.y_index = 0x00;
+
+        // Execute instruction
+        Opcode0x98::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.accumulator, 0x00);
+        assert!(cpu.is_z_set());
+        assert!(!cpu.is_n_set());
+    }
+}
