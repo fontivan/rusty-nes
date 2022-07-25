@@ -35,13 +35,10 @@ impl Opcode for Opcode0x4a {
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Fetch the rightmost bit
-        let carry: u8 = _cpu.accumulator & 0b0000_0001;
+        let carry: bool = _cpu.accumulator & 0b0000_0001 == 0b0000_0001;
 
         // Rotate the bits in the accumlator to the right by 1 bit
         _cpu.accumulator >>= 1;
-
-        // Load a zero into the leftmost bit
-        _cpu.accumulator &= 0b1000_0000;
 
         // If data is now zero, then set the zero flag high
         if _cpu.accumulator == 0 {
@@ -51,13 +48,101 @@ impl Opcode for Opcode0x4a {
         }
 
         // Set carry flag to the value of the rightmost bit
-        if carry == 0 {
-            _cpu.clear_c_flag();
-        } else {
+        if carry {
             _cpu.set_c_flag();
+        } else {
+            _cpu.clear_c_flag();
         }
 
-        // Shift right inserts 1 into bit 7, so N will always be cleared
+        // Shift right inserts a 0 into bit 7, so N will always be cleared
         _cpu.clear_n_flag();
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_cpu() -> Cpu {
+        // Get a cpu
+        let mut cpu: Cpu = Cpu::new();
+        cpu.program_counter = 0x00;
+        return cpu;
+    }
+
+    fn get_test_memory() -> Memory {
+        // Get a memory
+        let memory_size: usize = 1;
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
+        let mut memory: Memory = memory_result.unwrap();
+        return memory;
+    }
+
+    #[test]
+    fn test_without_carry() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+
+        cpu.accumulator = 0b1100_0110;
+        cpu.clear_c_flag();
+
+        // Execute instruction
+        Opcode0x4a::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.accumulator, 0b0110_0011);
+        assert!(!cpu.is_c_set());
+    }
+
+    #[test]
+    fn test_with_carry() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+
+        cpu.accumulator = 0b1100_0011;
+        cpu.clear_c_flag();
+
+        // Execute instruction
+        Opcode0x4a::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.accumulator, 0b0110_0001);
+        assert!(cpu.is_c_set());
+    }
+
+    // #[test]
+    // fn test_with_carry_and_rotate_zero() {
+    //     // Prep for the test
+    //     let mut cpu: Cpu = get_test_cpu();
+    //     let mut memory: Memory = get_test_memory();
+
+    //     cpu.accumulator = 0b1101_0101;
+    //     cpu.clear_c_flag();
+
+    //     // Execute instruction
+    //     Opcode0x4a::execute(&mut cpu, &mut memory);
+
+    //     // Assert results
+    //     assert_eq!(cpu.accumulator, 0b0110_1010);
+    //     assert!(cpu.is_c_set());
+    // }
+
+    // #[test]
+    // fn test_with_carry_and_rotate_one() {
+    //     // Prep for the test
+    //     let mut cpu: Cpu = get_test_cpu();
+    //     let mut memory: Memory = get_test_memory();
+
+    //     cpu.accumulator = 0b1101_0101;
+    //     cpu.set_c_flag();
+
+    //     // Execute instruction
+    //     Opcode0x4a::execute(&mut cpu, &mut memory);
+
+    //     // Assert results
+    //     assert_eq!(cpu.accumulator, 0b1110_1010);
+    //     assert!(cpu.is_c_set());
+    // }
 }

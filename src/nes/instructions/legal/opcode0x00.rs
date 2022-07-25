@@ -37,10 +37,9 @@ impl Opcode for Opcode0x00 {
         // Break
 
         // Increment program counter by one
-        _cpu.program_counter = _cpu.program_counter + 1
+        _cpu.program_counter = _cpu.program_counter + 1;
 
         // Set interrupt flag
-        _cpu.set_i_flag()
-
+        _cpu.set_i_flag();
     }
 }
