@@ -119,9 +119,12 @@ project.tasks.CargoBuild {
 }
 
 project.tasks.CargoTest {
-    dependsOn(project.tasks.CargoFmt)
     dependsOn(project.tasks.CargoClippy)
     dependsOn(project.tasks.ValidateTestRom)
+}
+
+project.tasks.CargoClippy {
+    dependsOn(project.tasks.CargoFmt)
 }
 
 project.tasks.ValidateTestRom {

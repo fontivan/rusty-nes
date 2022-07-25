@@ -41,7 +41,7 @@ impl Opcode for Opcode0x4e {
 
         // Get the address
         let address: usize =
-            Utils::get_absolute_address(0, Utils::get_u16_from_u8_pair(low_byte, high_byte)).into();
+            Utils::get_absolute_address(0, Utils::get_u16_from_u8_pair(high_byte, low_byte)).into();
 
         // Fetch the data from memory
         let mut data: u8 = _memory.read(address, 1)[0];

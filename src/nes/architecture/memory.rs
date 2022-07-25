@@ -22,6 +22,8 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use crate::nes::architecture::utils::Utils;
+
 // Structure for Memory
 pub struct Memory {
     // The size of the memory pool in bytes
@@ -124,6 +126,45 @@ impl Memory {
             print!("iNES format detected.")
         }
     }
+
+    pub fn get_instruction_argument(&mut self, offset: u16, size: usize) -> u32 {
+        // We expect this to be between 1 and 4 bytes
+        assert!(size >= 1);
+        assert!(size <= 4);
+
+        // First get the program counter and read the data stored after the instruction
+        let data: Vec<u8> = self.read(offset.into(), size);
+
+        match size {
+            1 => {
+                let mut result: u32 = data[0].into();
+                result >>= 4;
+                result &= 0b0000_1111;
+                return result.into();
+            }
+            2 => {
+                let result: u32 = data[0].into();
+                return result;
+            }
+            3 => {
+                let mut low: u32 = data[1].into();
+                low >>= 4;
+                low &= 0b0000_1111;
+                let mut high: u32 = data[0].into();
+                high <<= 4;
+                return high | low;
+            }
+            4 => {
+                let low: u32 = data[1].into();
+                let mut high: u32 = data[0].into();
+                high <<= 8;
+                return high | low;
+            }
+            _ => {
+                panic!("This shouldn't be possible!");
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -153,7 +194,7 @@ mod tests {
         let mut memory: Memory = get_test_memory();
 
         // Assert that the reported size of the memory is the size we were expecting
-        assert!(memory.get_size() == get_test_memory_size());
+        assert_eq!(memory.get_size(), get_test_memory_size());
     }
 
     #[test]
@@ -164,7 +205,7 @@ mod tests {
         // Assert that all the memory we initialized was zeroed
         let actual_memory: Vec<u8> = memory.read(0, get_test_memory_size());
         for i in 0..get_test_memory_size() {
-            assert!(actual_memory[i] == 0);
+            assert_eq!(actual_memory[i], 0);
         }
     }
 
@@ -191,10 +232,10 @@ mod tests {
         let actual_length: usize = actual_data.len();
 
         // Assert that the length of the actual vs expected data is the same
-        assert!(expected_length == actual_length);
+        assert_eq!(expected_length, actual_length);
 
         // Assert that the data we read from the memory was the same as the data we wrote
-        assert!(clone == actual_data);
+        assert_eq!(clone, actual_data);
     }
 
     #[test]
@@ -220,7 +261,7 @@ mod tests {
         let actual_data: Vec<u8> = memory.read(0, 3);
 
         // Assert that the expected and actual data are the same
-        assert!(expected_data == actual_data);
+        assert_eq!(expected_data, actual_data);
     }
 
     #[test]
@@ -247,5 +288,109 @@ mod tests {
 
         // Intentionally write to memory out of bounds. This should cause a panic.
         memory.write(get_test_memory_size() + 1, expected_data);
+    }
+
+    #[test]
+    #[should_panic]
+    fn get_instruct_argument_invalid_size_too_small() {
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // Test data is for an arithmetic shift left operator using absolute addressing mode
+        let data: Vec<u8> = [0x0, 0xE, 0x4, 0x4, 0x0, 0x0].to_vec();
+
+        // Write test data to memory
+        memory.write(0, data);
+
+        // Attempt to fetch an argument of size 0
+        let result: u32 = memory.get_instruction_argument(2, 0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn get_instruct_argument_invalid_size_too_large() {
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // Test data is for an arithmetic shift left operator using absolute addressing mode
+        let data: Vec<u8> = [0x0, 0xE, 0x4, 0x4, 0x0, 0x0].to_vec();
+
+        // Write test data to memory
+        memory.write(0, data);
+
+        // Attempt to fetch an argument of size 5
+        let result: u32 = memory.get_instruction_argument(2, 5);
+    }
+
+    #[test]
+    fn get_one_byte_instruction_argument() {
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // Test data is for an arithmetic shift left operator using absolute addressing mode
+        let data: Vec<u8> = [0x0E, 0x44, 0x00].to_vec();
+
+        // Write test data to memory
+        memory.write(0, data);
+
+        // Fetch the instruction argument
+        let result: u32 = memory.get_instruction_argument(1, 1);
+
+        // Assert result is as expected
+        assert_eq!(result, 0x4);
+    }
+
+    #[test]
+    fn get_two_byte_instruction_argument() {
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // Test data is for an arithmetic shift left operator using absolute addressing mode
+        let data: Vec<u8> = [0x0E, 0x44, 0x00].to_vec();
+
+        // Write test data to memory
+        memory.write(0, data);
+
+        // Fetch the instruction argument
+        let result: u32 = memory.get_instruction_argument(1, 2);
+
+        // Assert result is as expected
+        assert_eq!(result, 0x44);
+    }
+
+    #[test]
+    fn get_three_byte_instruction_argument() {
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // Test data is for an arithmetic shift left operator using absolute addressing mode
+        let data: Vec<u8> = [0x0E, 0x44, 0x00].to_vec();
+
+        // Write test data to memory
+        memory.write(0, data);
+
+        // Fetch the instruction argument
+        let result: u32 = memory.get_instruction_argument(1, 3);
+
+        // Assert result is as expected
+        assert_eq!(result, 0x440);
+    }
+
+    #[test]
+    fn get_four_byte_instruction_argument() {
+        // Fetch a test instance of memory
+        let mut memory: Memory = get_test_memory();
+
+        // Test data is for an arithmetic shift left operator using absolute addressing mode
+        let data: Vec<u8> = [0x0E, 0x44, 0x00].to_vec();
+
+        // Write test data to memory
+        memory.write(0, data);
+
+        // Fetch the instruction argument
+        let result: u32 = memory.get_instruction_argument(1, 4);
+
+        // Assert result is as expected
+        assert_eq!(result, 0x4400);
     }
 }

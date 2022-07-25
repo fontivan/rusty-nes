@@ -42,7 +42,7 @@ impl Opcode for Opcode0x5e {
         // Get the address
         let address: usize = Utils::get_absolute_address(
             _cpu.x_index,
-            Utils::get_u16_from_u8_pair(low_byte, high_byte),
+            Utils::get_u16_from_u8_pair(high_byte, low_byte),
         )
         .into();
 

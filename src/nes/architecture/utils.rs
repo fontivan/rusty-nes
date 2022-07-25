@@ -22,38 +22,10 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::nes::architecture::cpu::Cpu;
-
-use crate::nes::architecture::memory::Memory;
-
 pub struct Utils;
 
 impl Utils {
-    pub fn get_instruction_argument(cpu: Cpu, mut memory: Memory, size: usize) -> u32 {
-        // First get the program counter and read the data stored after the instruction
-        let mut address: usize = cpu.program_counter.into();
-        address += 2;
-        let data: Vec<u8> = memory.read(address, size);
-
-        // We will always return a u32 but it needs to be constructed based on the raw data
-        if data.len() == 1 {
-            Utils::get_u16_from_u8_pair(data[0], 0).into()
-        } else if data.len() == 2 {
-            Utils::get_u16_from_u8_pair(data[1], data[0]).into()
-        } else if data.len() == 3 {
-            Utils::get_u32_from_u16_pair(
-                Utils::get_u16_from_u8_pair(data[1], data[0]),
-                Utils::get_u16_from_u8_pair(data[2], 0),
-            )
-        } else {
-            Utils::get_u32_from_u16_pair(
-                Utils::get_u16_from_u8_pair(data[1], data[0]),
-                Utils::get_u16_from_u8_pair(data[3], data[2]),
-            )
-        }
-    }
-
-    pub fn get_u32_from_u16_pair(low_bytes: u16, high_bytes: u16) -> u32 {
+    pub fn get_u32_from_u16_pair(high_bytes: u16, low_bytes: u16) -> u32 {
         // Load the high bytes into the address
         let mut high: u32 = high_bytes.into();
 
@@ -70,7 +42,7 @@ impl Utils {
         address
     }
 
-    pub fn get_u16_from_u8_pair(low_byte: u8, high_byte: u8) -> u16 {
+    pub fn get_u16_from_u8_pair(high_byte: u8, low_byte: u8) -> u16 {
         // Load the high byte into the address
         let mut high: u16 = high_byte.into();
 
@@ -107,5 +79,26 @@ impl Utils {
 
         // Return the address
         address
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_u32_pair() {
+        let low: u16 = 0x00AB;
+        let high: u16 = 0x00CD;
+        let actual: u32 = Utils::get_u32_from_u16_pair(high, low);
+        assert_eq!(actual, 0x00CD00AB);
+    }
+
+    #[test]
+    fn test_u16_pair() {
+        let low: u8 = 0x0A;
+        let high: u8 = 0x0B;
+        let actual: u16 = Utils::get_u16_from_u8_pair(high, low);
+        assert_eq!(actual, 0x0B0A);
     }
 }
