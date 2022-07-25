@@ -127,7 +127,7 @@ impl Memory {
         }
     }
 
-    pub fn get_instruction_argument(&mut self, offset: u16, size: usize) -> u32 {
+    pub fn get_instruction_argument(&mut self, offset: u16, size: usize) -> u16 {
         // We expect this to be between 1 and 4 bytes
         assert!(size >= 1);
         assert!(size <= 4);
@@ -137,26 +137,26 @@ impl Memory {
 
         match size {
             1 => {
-                let mut result: u32 = data[0].into();
+                let mut result: u16 = data[0].into();
                 result >>= 4;
                 result &= 0b0000_1111;
                 return result.into();
             }
             2 => {
-                let result: u32 = data[0].into();
+                let result: u16 = data[0].into();
                 return result;
             }
             3 => {
-                let mut low: u32 = data[1].into();
+                let mut low: u16 = data[1].into();
                 low >>= 4;
                 low &= 0b0000_1111;
-                let mut high: u32 = data[0].into();
+                let mut high: u16 = data[0].into();
                 high <<= 4;
                 return high | low;
             }
             4 => {
-                let low: u32 = data[1].into();
-                let mut high: u32 = data[0].into();
+                let low: u16 = data[1].into();
+                let mut high: u16 = data[0].into();
                 high <<= 8;
                 return high | low;
             }
@@ -303,7 +303,7 @@ mod tests {
         memory.write(0, data);
 
         // Attempt to fetch an argument of size 0
-        let result: u32 = memory.get_instruction_argument(2, 0);
+        let result: u16 = memory.get_instruction_argument(2, 0);
     }
 
     #[test]
@@ -319,7 +319,7 @@ mod tests {
         memory.write(0, data);
 
         // Attempt to fetch an argument of size 5
-        let result: u32 = memory.get_instruction_argument(2, 5);
+        let result: u16 = memory.get_instruction_argument(2, 5);
     }
 
     #[test]
@@ -334,7 +334,7 @@ mod tests {
         memory.write(0, data);
 
         // Fetch the instruction argument
-        let result: u32 = memory.get_instruction_argument(1, 1);
+        let result: u16 = memory.get_instruction_argument(1, 1);
 
         // Assert result is as expected
         assert_eq!(result, 0x4);
@@ -352,7 +352,7 @@ mod tests {
         memory.write(0, data);
 
         // Fetch the instruction argument
-        let result: u32 = memory.get_instruction_argument(1, 2);
+        let result: u16 = memory.get_instruction_argument(1, 2);
 
         // Assert result is as expected
         assert_eq!(result, 0x44);
@@ -370,7 +370,7 @@ mod tests {
         memory.write(0, data);
 
         // Fetch the instruction argument
-        let result: u32 = memory.get_instruction_argument(1, 3);
+        let result: u16 = memory.get_instruction_argument(1, 3);
 
         // Assert result is as expected
         assert_eq!(result, 0x440);
@@ -388,7 +388,7 @@ mod tests {
         memory.write(0, data);
 
         // Fetch the instruction argument
-        let result: u32 = memory.get_instruction_argument(1, 4);
+        let result: u16 = memory.get_instruction_argument(1, 4);
 
         // Assert result is as expected
         assert_eq!(result, 0x4400);

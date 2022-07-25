@@ -186,10 +186,9 @@ impl Cpu {
     // Execute a clock cycle on the cpu
     pub fn execute_clock_cycle(cpu: &mut Cpu, memory: &mut Memory) {
         // Fetch
-        let data: Vec<u8> = memory.read(cpu.program_counter.into(), 2);
-        let opcode: u16 = Utils::get_u16_from_u8_pair(data[1], data[0]);
+        let data: Vec<u8> = memory.read(cpu.program_counter.into(), 1);
 
         // Decode and execute
-        Decoder::execute(cpu, memory, opcode);
+        Decoder::execute(cpu, memory, data[0]);
     }
 }
