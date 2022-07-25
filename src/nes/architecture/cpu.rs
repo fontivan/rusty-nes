@@ -327,7 +327,7 @@ mod tests {
         return memory;
     }
 
-    // #[test]
+    #[test]
     fn accumulator_add() {
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
@@ -338,48 +338,56 @@ mod tests {
         cpu.program_counter = 0x00;
 
         // Execute two cycles
+        assert_eq!(cpu.accumulator, 0x00);
         Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        assert_eq!(cpu.accumulator, 0x01);
         Cpu::execute_clock_cycle(&mut cpu, &mut memory);
-
-        // Validate result
         assert_eq!(cpu.accumulator, 0x04);
     }
 
-    // #[test]
+    #[test]
     fn x_increment() {
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
 
-        let data: Vec<u8> = [0xA2, 0x01, 0xE8, 0xE8, 0xE8].to_vec();
+        let data: Vec<u8> = [0xA2, 0xF0, 0xE8, 0xE8, 0xE8].to_vec();
 
         memory.write(0, data);
         cpu.program_counter = 0x00;
 
-        // Execute three cycles
+        // Execute four cycles in total - 1 load, plus 3 increments
+        assert_eq!(cpu.x_index, 0x00);
         Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        assert_eq!(cpu.x_index, 0xF0);
         Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        assert_eq!(cpu.x_index, 0xF1);
         Cpu::execute_clock_cycle(&mut cpu, &mut memory);
-
-        // Validate result
-        assert_eq!(cpu.x_index, 0x04);
+        assert_eq!(cpu.x_index, 0xF2);
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        assert_eq!(cpu.x_index, 0xF3);
     }
 
-    // #[test]
+    #[test]
     fn y_decrement() {
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
 
-        let data: Vec<u8> = [0xA2, 0x0F, 0x88, 0x88, 0x88].to_vec();
+        let data: Vec<u8> = [0xA0, 0xFF, 0x88, 0x88, 0x88, 0x88].to_vec();
 
         memory.write(0, data);
         cpu.program_counter = 0x00;
 
-        // Execute three cycles
+        // Execute five cycles in total - one load, plus 4 decrements
+        assert_eq!(cpu.y_index, 0x00);
         Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        assert_eq!(cpu.y_index, 0xFF);
         Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        assert_eq!(cpu.y_index, 0xFE);
         Cpu::execute_clock_cycle(&mut cpu, &mut memory);
-
-        // Validate result
-        assert_eq!(cpu.x_index, 0x0C);
+        assert_eq!(cpu.y_index, 0xFD);
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        assert_eq!(cpu.y_index, 0xFC);
+        Cpu::execute_clock_cycle(&mut cpu, &mut memory);
+        assert_eq!(cpu.y_index, 0xFB);
     }
 }

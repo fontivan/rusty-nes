@@ -23,8 +23,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::instructions::Opcode;
+use std::convert::TryInto;
 
 pub struct Opcode0xa2 {}
 
@@ -35,10 +37,15 @@ impl Opcode for Opcode0xa2 {
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Get the operand data from the memory
-        let low_byte: u8 = _memory.read((_cpu.program_counter).into(), 1)[0];
+        let instruction_arg: u8 = _memory
+            .get_instruction_argument(_cpu.program_counter, 1)
+            .try_into()
+            .unwrap();
+
+        _cpu.register_add(Register::ProgramCounter, 1);
 
         // Load the provided byte directly into x index register
-        _cpu.x_index = low_byte;
+        _cpu.x_index = instruction_arg;
 
         // If the MSB is high then we will need to set N
         if _cpu.x_index & 0b1000_0000 == 0 {
@@ -53,5 +60,44 @@ impl Opcode for Opcode0xa2 {
         } else {
             _cpu.clear_z_flag();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_cpu() -> Cpu {
+        // Get a cpu
+        let mut cpu: Cpu = Cpu::new();
+        cpu.program_counter = 0x00;
+        return cpu;
+    }
+
+    fn get_test_memory() -> Memory {
+        // Get a memory
+        let memory_size: usize = 1024;
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
+        let mut memory: Memory = memory_result.unwrap();
+        return memory;
+    }
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory();
+        cpu.program_counter = 0x01;
+        memory.write(0, [0xa2, 0x44].to_vec());
+
+        // Execute instruction
+        Opcode0xa2::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.x_index, 0x44);
+        assert!(!cpu.is_c_set());
+        assert!(!cpu.is_z_set());
+        assert!(!cpu.is_n_set());
+        assert_eq!(cpu.program_counter, 0x02);
     }
 }

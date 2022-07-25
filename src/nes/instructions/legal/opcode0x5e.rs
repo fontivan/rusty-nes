@@ -37,10 +37,10 @@ impl Opcode for Opcode0x5e {
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Get the operand data from the memory
-        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter, 4);
+        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter, 2);
 
         // Increase PC by amount of bytes read
-        _cpu.register_add(Register::ProgramCounter, 4);
+        _cpu.register_add(Register::ProgramCounter, 2);
 
         // Get the address
         let address: usize = Utils::get_absolute_address(_cpu.x_index, instruction_arg).into();
@@ -114,7 +114,7 @@ mod tests {
         let result: u8 = memory.read(0x4400 + 0xF0, 1)[0];
         assert_eq!(result, 0b0101_0101);
         assert!(!cpu.is_c_set());
-        assert_eq!(cpu.program_counter, 0x05);
+        assert_eq!(cpu.program_counter, 0x03);
     }
 
     #[test]
@@ -136,6 +136,6 @@ mod tests {
         let result: u8 = memory.read(0x4400 + 0xF0, 1)[0];
         assert_eq!(result, 0b0101_0010);
         assert!(cpu.is_c_set());
-        assert_eq!(cpu.program_counter, 0x05);
+        assert_eq!(cpu.program_counter, 0x03);
     }
 }

@@ -37,7 +37,7 @@ impl Opcode for Opcode0x4e {
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
         // Get the operand data from the memory
-        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter, 4);
+        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter, 2);
 
         // Increase PC by amount of bytes read
         _cpu.register_add(Register::ProgramCounter, 2);

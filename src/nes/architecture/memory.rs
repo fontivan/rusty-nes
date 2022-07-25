@@ -128,7 +128,7 @@ impl Memory {
     pub fn get_instruction_argument(&mut self, offset: u16, size: usize) -> u16 {
         // We expect this to be between 1 and 4 bytes
         assert!(size >= 1);
-        assert!(size <= 4);
+        assert!(size <= 2);
 
         // First get the program counter and read the data stored after the instruction
         let data: Vec<u8> = self.read(offset.into(), size);
@@ -136,27 +136,14 @@ impl Memory {
         match size {
             1 => {
                 let mut result: u16 = data[0].into();
-                result >>= 4;
-                result &= 0b0000_1111;
                 return result.into();
             }
             2 => {
-                let result: u16 = data[0].into();
+                let mut result: u16 = data[0].into();
+                result <<= 8;
+                let data16: u16 = data[1].into();
+                result |= data16;
                 return result;
-            }
-            3 => {
-                let mut low: u16 = data[1].into();
-                low >>= 4;
-                low &= 0b0000_1111;
-                let mut high: u16 = data[0].into();
-                high <<= 4;
-                return high | low;
-            }
-            4 => {
-                let low: u16 = data[1].into();
-                let mut high: u16 = data[0].into();
-                high <<= 8;
-                return high | low;
             }
             _ => {
                 panic!("This shouldn't be possible!");
@@ -335,7 +322,7 @@ mod tests {
         let result: u16 = memory.get_instruction_argument(1, 1);
 
         // Assert result is as expected
-        assert_eq!(result, 0x4);
+        assert_eq!(result, 0x44);
     }
 
     #[test]
@@ -344,7 +331,7 @@ mod tests {
         let mut memory: Memory = get_test_memory();
 
         // Test data is for an arithmetic shift left operator using absolute addressing mode
-        let data: Vec<u8> = [0x0E, 0x44, 0x00].to_vec();
+        let data: Vec<u8> = [0x0E, 0x44, 0x11].to_vec();
 
         // Write test data to memory
         memory.write(0, data);
@@ -353,42 +340,6 @@ mod tests {
         let result: u16 = memory.get_instruction_argument(1, 2);
 
         // Assert result is as expected
-        assert_eq!(result, 0x44);
-    }
-
-    #[test]
-    fn get_three_byte_instruction_argument() {
-        // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
-
-        // Test data is for an arithmetic shift left operator using absolute addressing mode
-        let data: Vec<u8> = [0x0E, 0x44, 0x00].to_vec();
-
-        // Write test data to memory
-        memory.write(0, data);
-
-        // Fetch the instruction argument
-        let result: u16 = memory.get_instruction_argument(1, 3);
-
-        // Assert result is as expected
-        assert_eq!(result, 0x440);
-    }
-
-    #[test]
-    fn get_four_byte_instruction_argument() {
-        // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
-
-        // Test data is for an arithmetic shift left operator using absolute addressing mode
-        let data: Vec<u8> = [0x0E, 0x44, 0x00].to_vec();
-
-        // Write test data to memory
-        memory.write(0, data);
-
-        // Fetch the instruction argument
-        let result: u16 = memory.get_instruction_argument(1, 4);
-
-        // Assert result is as expected
-        assert_eq!(result, 0x4400);
+        assert_eq!(result, 0x4411);
     }
 }

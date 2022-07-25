@@ -40,10 +40,10 @@ impl Opcode for Opcode0x06 {
         // Arithmetic shift left on a zero page address
 
         // Get the address offset
-        let argument: u16 = _memory.get_instruction_argument(_cpu.program_counter, 2);
+        let argument: u16 = _memory.get_instruction_argument(_cpu.program_counter, 1);
 
         // Increase PC by amount of bytes read
-        _cpu.register_add(Register::ProgramCounter, 2);
+        _cpu.register_add(Register::ProgramCounter, 1);
 
         // Get the final address in memory
         let address: u16 = Utils::get_zero_paged_address(0, argument.try_into().unwrap());
@@ -108,7 +108,7 @@ mod tests {
         assert!(!cpu.is_c_set());
         assert!(!cpu.is_z_set());
         assert!(cpu.is_n_set());
-        assert_eq!(cpu.program_counter, 0x03);
+        assert_eq!(cpu.program_counter, 0x02);
     }
 
     #[test]
@@ -129,6 +129,6 @@ mod tests {
         assert!(cpu.is_c_set());
         assert!(!cpu.is_z_set());
         assert!(cpu.is_n_set());
-        assert_eq!(cpu.program_counter, 0x03);
+        assert_eq!(cpu.program_counter, 0x02);
     }
 }

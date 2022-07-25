@@ -38,10 +38,10 @@ impl Opcode for Opcode0x0e {
         // Arithmetic shift left on an absolute page address
 
         // Get the address offset
-        let address: u16 = _memory.get_instruction_argument(_cpu.program_counter, 4);
+        let address: u16 = _memory.get_instruction_argument(_cpu.program_counter, 2);
 
         // Increase PC by amount of bytes read
-        _cpu.register_add(Register::ProgramCounter, 4);
+        _cpu.register_add(Register::ProgramCounter, 2);
 
         // Read the value
         let mut value = _memory.read(address.into(), 1)[0];
