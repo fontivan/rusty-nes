@@ -34,6 +34,13 @@ impl Opcode for Opcode0x00 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x00' is not implemented")
+        // Break
+
+        // Increment program counter by one
+        _cpu.program_counter = _cpu.program_counter + 1
+
+        // Set interrupt flag
+        _cpu.set_i_flag()
+
     }
 }
