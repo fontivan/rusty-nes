@@ -111,38 +111,4 @@ mod tests {
         assert_eq!(cpu.accumulator, 0b0110_0001);
         assert!(cpu.is_c_set());
     }
-
-    // #[test]
-    // fn test_with_carry_and_rotate_zero() {
-    //     // Prep for the test
-    //     let mut cpu: Cpu = get_test_cpu();
-    //     let mut memory: Memory = get_test_memory();
-
-    //     cpu.accumulator = 0b1101_0101;
-    //     cpu.clear_c_flag();
-
-    //     // Execute instruction
-    //     Opcode0x4a::execute(&mut cpu, &mut memory);
-
-    //     // Assert results
-    //     assert_eq!(cpu.accumulator, 0b0110_1010);
-    //     assert!(cpu.is_c_set());
-    // }
-
-    // #[test]
-    // fn test_with_carry_and_rotate_one() {
-    //     // Prep for the test
-    //     let mut cpu: Cpu = get_test_cpu();
-    //     let mut memory: Memory = get_test_memory();
-
-    //     cpu.accumulator = 0b1101_0101;
-    //     cpu.set_c_flag();
-
-    //     // Execute instruction
-    //     Opcode0x4a::execute(&mut cpu, &mut memory);
-
-    //     // Assert results
-    //     assert_eq!(cpu.accumulator, 0b1110_1010);
-    //     assert!(cpu.is_c_set());
-    // }
 }
