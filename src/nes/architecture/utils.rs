@@ -120,6 +120,42 @@ impl Utils {
         // Decrement the stack register
         cpu.register_add(Register::Stack, -1);
     }
+
+    pub fn get_twos_complement_magnitude(input: usize, size: usize) -> usize {
+        // We will need a mutable number for this
+        let mut result: usize = input;
+
+        // Subtract one
+        result = result - 1;
+
+        // Invert all the bits
+        result = !result;
+
+        // Create a mask to truncate the result
+        let mut mask = 0;
+
+        // Determine how many bits of the mask need to be set
+        match size {
+            8 => {
+                //
+                mask = u8::MAX.try_into().unwrap();
+            }
+            16 => {
+                //
+                mask = u16::MAX.try_into().unwrap();
+            }
+            32 => {
+                //
+                mask = u32::MAX.try_into().unwrap();
+            }
+            _ => {
+                panic!("Invalid size, expected one of (8, 16, 32).")
+            }
+        }
+
+        // Return bitwise and of result and mask
+        return result & mask;
+    }
 }
 
 #[cfg(test)]
@@ -148,5 +184,24 @@ mod tests {
         let result = Utils::get_u8_pair_from_u16(input);
         assert_eq!(result.0, 0xAB);
         assert_eq!(result.1, 0xCD);
+    }
+
+    #[test]
+    fn test_twos_complement() {
+        let inputs: Vec<usize> = [
+            0b1000_0000,
+            0b1000_0001,
+            0b1000_0010,
+            0b1111_1110,
+            0b1111_1111,
+        ]
+        .to_vec();
+        let expected: Vec<usize> = [128, 127, 126, 2, 1].to_vec();
+        for i in 0..5 {
+            assert_eq!(
+                Utils::get_twos_complement_magnitude(inputs[i], 8),
+                expected[i]
+            );
+        }
     }
 }

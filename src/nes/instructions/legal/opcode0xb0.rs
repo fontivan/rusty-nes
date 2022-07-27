@@ -23,8 +23,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::architecture::utils::Utils;
 use crate::nes::instructions::Opcode;
+
+use std::convert::TryInto;
 
 pub struct Opcode0xb0 {}
 
@@ -34,6 +38,82 @@ impl Opcode for Opcode0xb0 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0xb0' is not implemented")
+        // Branch on carry set
+
+        // If carry is not set then just add to program counter
+        if !_cpu.is_c_set() {
+            _cpu.register_add(Register::ProgramCounter, 1);
+            return;
+        }
+
+        // If carry is set then we need to figure out where we are branching to
+        let offset: u16 = _memory.get_instruction_argument(_cpu.program_counter, 1);
+
+        // This may be a 2s complement negative number
+        if offset & 0b1000_0000 == 0b1000_0000 {
+            // 2s complement
+            let magnitude: usize = Utils::get_twos_complement_magnitude(offset.into(), 8);
+            let mut value: isize = magnitude.try_into().unwrap();
+            value = value * -1;
+            _cpu.register_add(Register::ProgramCounter, value);
+        } else {
+            _cpu.register_add(Register::ProgramCounter, offset.try_into().unwrap());
+        }
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::nes::architecture::cpu::tests::get_test_cpu;
+    use crate::nes::architecture::memory::tests::get_test_memory;
+
+    #[test]
+    fn test_taking_positive_branch() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1024);
+        cpu.set_c_flag();
+        cpu.program_counter = 0x01;
+        memory.write(0, [0xb0, 0x05].to_vec());
+
+        // Execute instruction
+        Opcode0xb0::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.program_counter, 0x06);
+    }
+
+    #[test]
+    fn test_taking_negative_branch() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1024);
+        cpu.program_counter = 0xf1;
+        cpu.set_c_flag();
+        memory.write(0xf0, [0xb0, 0xf5].to_vec());
+
+        // Execute instruction
+        Opcode0xb0::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.program_counter, 0xe6);
+    }
+
+    #[test]
+    fn test_not_taking_branch() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1024);
+        cpu.clear_c_flag();
+        cpu.program_counter = 0xf0;
+        memory.write(0xf0, [0xb0, 0xf5].to_vec());
+
+        // Execute instruction
+        Opcode0xb0::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.program_counter, 0xf1);
     }
 }
