@@ -131,9 +131,9 @@ impl Memory {
                 return result.into();
             }
             2 => {
-                let mut result: u16 = data[0].into();
+                let mut result: u16 = data[1].into();
                 result <<= 8;
-                let data16: u16 = data[1].into();
+                let data16: u16 = data[0].into();
                 result |= data16;
                 return result;
             }
@@ -323,7 +323,7 @@ mod tests {
         let mut memory: Memory = get_test_memory();
 
         // Test data is for an arithmetic shift left operator using absolute addressing mode
-        let data: Vec<u8> = [0x0E, 0x44, 0x11].to_vec();
+        let data: Vec<u8> = [0x0E, 0x11, 0x44].to_vec();
 
         // Write test data to memory
         memory.write(0, data);

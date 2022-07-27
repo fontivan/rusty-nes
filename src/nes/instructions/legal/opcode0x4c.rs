@@ -34,6 +34,8 @@ impl Opcode for Opcode0x4c {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x4c' is not implemented")
+        // Jump directly to operand address
+        let address: u16 = _memory.get_instruction_argument(_cpu.program_counter, 2);
+        _cpu.program_counter = address;
     }
 }

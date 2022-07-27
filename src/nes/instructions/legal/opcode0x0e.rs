@@ -91,7 +91,7 @@ mod tests {
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
         cpu.program_counter = 0x01;
-        memory.write(0, [0x06, 0x44, 0x00].to_vec());
+        memory.write(0, [0x06, 0x00, 0x44].to_vec());
         memory.write(0x4400, [0b0101_1010].to_vec());
 
         // Execute instruction
@@ -111,7 +111,7 @@ mod tests {
         let mut cpu: Cpu = get_test_cpu();
         let mut memory: Memory = get_test_memory();
         cpu.program_counter = 0x01;
-        memory.write(0, [0x06, 0x44, 0x00].to_vec());
+        memory.write(0, [0x06, 0x00, 0x44].to_vec());
         memory.write(0x4400, [0b1101_1010].to_vec());
 
         // Execute instruction

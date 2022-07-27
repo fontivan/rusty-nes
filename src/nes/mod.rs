@@ -25,6 +25,7 @@
 use crate::nes::architecture::cartridge_slot::CartridgeSlot;
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::memory::Memory;
+use std::env;
 
 pub mod architecture;
 pub mod controllers;
@@ -73,8 +74,9 @@ impl Nes {
     pub fn run(&mut self) {
         // self.dump_memory();
         // Test rom retrived from https://github.com/christopherpow/nes-test-roms/raw/master/other/nestest.nes
+        let current_dir: String = env::current_dir().unwrap().display().to_string();
         self.cartridge_slot
-            .load_cartridge("nestest.nes".to_string());
+            .load_cartridge(current_dir + "/build/target/debug/nestest.nes");
         self.memory
             .load_rom_from_cartridge(self.cartridge_slot.rom_contents.clone());
         self.cpu.set_nestest_automation();
