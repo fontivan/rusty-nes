@@ -46,26 +46,14 @@ impl Opcode for Opcode0xc8 {
 mod tests {
     use super::*;
 
-    fn get_test_cpu() -> Cpu {
-        // Get a cpu
-        let mut cpu: Cpu = Cpu::new();
-        cpu.program_counter = 0x00;
-        return cpu;
-    }
-
-    fn get_test_memory() -> Memory {
-        // Get a memory
-        let memory_size: usize = 1;
-        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
-        let mut memory: Memory = memory_result.unwrap();
-        return memory;
-    }
+    use crate::nes::architecture::cpu::tests::get_test_cpu;
+    use crate::nes::architecture::memory::tests::get_test_memory;
 
     #[test]
     fn test_no_flags() {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(1);
         cpu.y_index = 0x0F;
 
         // Execute instruction
@@ -82,7 +70,7 @@ mod tests {
     fn test_n_flag() {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(1);
         cpu.y_index = 0xF1;
 
         // Execute instruction
@@ -99,7 +87,7 @@ mod tests {
     fn test_z_flag() {
         // Prep for the test
         let mut cpu: Cpu = get_test_cpu();
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(1);
         cpu.y_index = 0xFF;
 
         // Execute instruction

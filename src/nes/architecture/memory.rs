@@ -145,18 +145,13 @@ impl Memory {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use super::*;
 
-    // The number of bytes to be used by the test memory
-    fn get_test_memory_size() -> usize {
-        8
-    }
-
     // Helper function for the tests to let them grab a Memory instance for testing
-    fn get_test_memory() -> Memory {
+    pub fn get_test_memory(memory_size: usize) -> Memory {
         // The number of bytes of memory to use for the test
-        let memory_result: Result<Memory, usize> = Memory::new(get_test_memory_size());
+        let memory_result: Result<Memory, usize> = Memory::new(memory_size);
         match memory_result {
             Ok(result) => result,
             Err(_) => {
@@ -168,31 +163,28 @@ mod tests {
     #[test]
     fn can_create_memory() {
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Assert that the reported size of the memory is the size we were expecting
-        assert_eq!(memory.get_size(), get_test_memory_size());
+        assert_eq!(memory.get_size(), 8);
     }
 
     #[test]
     fn memory_is_initially_zeroed() {
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Assert that all the memory we initialized was zeroed
-        let actual_memory: Vec<u8> = memory.read(0, get_test_memory_size());
-        for i in 0..get_test_memory_size() {
+        let actual_memory: Vec<u8> = memory.read(0, 8);
+        for i in 0..8 {
             assert_eq!(actual_memory[i], 0);
         }
     }
 
     #[test]
     fn can_write_to_memory() {
-        // This test requires at least 5 bytes in memory
-        assert!(get_test_memory_size() > 5);
-
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Set up our expected data
         let expected_data: Vec<u8> = [1, 2, 3, 4, 5].to_vec();
@@ -217,11 +209,8 @@ mod tests {
 
     #[test]
     fn write_sparsely_populated_data() {
-        // This test requires at least 3 bytes in memory
-        assert!(get_test_memory_size() > 3);
-
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // We will write two separate bytes sparsely to the memory
         let data1: Vec<u8> = [1].to_vec();
@@ -245,33 +234,30 @@ mod tests {
     #[should_panic]
     fn read_memory_out_of_bounds() {
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Intentionally read from memory out of bounds. This should cause a panic.
-        let _panic: Vec<u8> = memory.read(get_test_memory_size() + 1, 1);
+        let _panic: Vec<u8> = memory.read(9, 1);
     }
 
     #[test]
     #[should_panic]
     fn write_memory_out_of_bounds() {
-        // This test requires at least 3 bytes in memory
-        assert!(get_test_memory_size() > 5);
-
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Prepare some test data
         let expected_data: Vec<u8> = [1, 2, 3].to_vec();
 
         // Intentionally write to memory out of bounds. This should cause a panic.
-        memory.write(get_test_memory_size() + 1, expected_data);
+        memory.write(9, expected_data);
     }
 
     #[test]
     #[should_panic]
     fn get_instruct_argument_invalid_size_too_small() {
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Test data is for an arithmetic shift left operator using absolute addressing mode
         let data: Vec<u8> = [0x0, 0xE, 0x4, 0x4, 0x0, 0x0].to_vec();
@@ -287,7 +273,7 @@ mod tests {
     #[should_panic]
     fn get_instruct_argument_invalid_size_too_large() {
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Test data is for an arithmetic shift left operator using absolute addressing mode
         let data: Vec<u8> = [0x0, 0xE, 0x4, 0x4, 0x0, 0x0].to_vec();
@@ -302,7 +288,7 @@ mod tests {
     #[test]
     fn get_one_byte_instruction_argument() {
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Test data is for an arithmetic shift left operator using absolute addressing mode
         let data: Vec<u8> = [0x0E, 0x44, 0x00].to_vec();
@@ -320,7 +306,7 @@ mod tests {
     #[test]
     fn get_two_byte_instruction_argument() {
         // Fetch a test instance of memory
-        let mut memory: Memory = get_test_memory();
+        let mut memory: Memory = get_test_memory(8);
 
         // Test data is for an arithmetic shift left operator using absolute addressing mode
         let data: Vec<u8> = [0x0E, 0x11, 0x44].to_vec();

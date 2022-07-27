@@ -40,6 +40,8 @@ pub mod legal;
 // https://wiki.nesdev.com/w/index.php/CPU_unofficial_opcodes#Games_using_unofficial_opcodes
 pub mod illegal;
 
+// Test utilities for testing the instructions
+
 pub trait Opcode {
     fn get_name() -> String {
         panic!("Opcode::get_name() must be overwritten.")
