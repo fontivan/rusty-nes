@@ -261,6 +261,13 @@ impl Cpu {
         }
     }
 
+    pub fn get_stack_pointer(&mut self) -> u16 {
+        // Build the stack pointer from the register and page
+        let mut stack_pointer: u16 = 0x0100;
+        let stack_register_value: u16 = self.stack.into();
+        return stack_pointer | stack_register_value;
+    }
+
     // This function will be called by a large number of instructions to check if the z and n flags should be set
     pub fn check_result_for_zero_and_negative_flags(&mut self, result: u8) {
         // If the last result was 0 then the zero flag must be set

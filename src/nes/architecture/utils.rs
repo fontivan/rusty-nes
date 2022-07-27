@@ -24,6 +24,11 @@
 
 pub struct Utils;
 
+use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
+use crate::nes::architecture::memory::Memory;
+use std::convert::TryInto;
+
 impl Utils {
     pub fn get_u32_from_u16_pair(high_bytes: u16, low_bytes: u16) -> u32 {
         // Load the high bytes into the address
@@ -59,6 +64,16 @@ impl Utils {
         address
     }
 
+    pub fn get_u8_pair_from_u16(input: u16) -> (u8, u8) {
+        let mut high: u16 = input;
+        let mut low: u16 = input;
+        low &= 0b0000_0000_1111_1111;
+        high >>= 8;
+        high &= 0b0000_0000_1111_1111;
+        let result = [high, low];
+        return (high.try_into().unwrap(), low.try_into().unwrap());
+    }
+
     pub fn get_zero_paged_address(index: u8, operand: u8) -> u16 {
         // First get the absolute address
         let mut address: u16 = Utils::get_absolute_address(index, operand.into());
@@ -80,6 +95,31 @@ impl Utils {
         // Return the address
         address
     }
+
+    pub fn stack_pop(mut cpu: &mut Cpu, mut memory: &mut Memory) -> u8 {
+        let stack_pointer: u16 = cpu.get_stack_pointer();
+
+        // Read the value from memory
+        let value: u8 = memory.read(stack_pointer.into(), 1)[0];
+
+        // Clear the value from the stack
+        memory.write(stack_pointer.into(), [0x00].to_vec());
+
+        // Increment the stack pointer
+        cpu.register_add(Register::Stack, 1);
+
+        return value;
+    }
+
+    pub fn stack_push(mut cpu: &mut Cpu, mut memory: &mut Memory, value: u8) {
+        let stack_pointer: u16 = cpu.get_stack_pointer();
+
+        // Write the value into memory
+        memory.write(stack_pointer.into(), [value].to_vec());
+
+        // Decrement the stack register
+        cpu.register_add(Register::Stack, -1);
+    }
 }
 
 #[cfg(test)]
@@ -100,5 +140,13 @@ mod tests {
         let high: u8 = 0x0B;
         let actual: u16 = Utils::get_u16_from_u8_pair(high, low);
         assert_eq!(actual, 0x0B0A);
+    }
+
+    #[test]
+    fn test_u8_pair() {
+        let input: u16 = 0xABCD;
+        let result = Utils::get_u8_pair_from_u16(input);
+        assert_eq!(result.0, 0xAB);
+        assert_eq!(result.1, 0xCD);
     }
 }
