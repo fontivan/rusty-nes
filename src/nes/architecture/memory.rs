@@ -22,6 +22,10 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use crate::nes::architecture::utils::Utils;
+
+use std::convert::TryInto;
+
 // Structure for Memory
 pub struct Memory {
     // The size of the memory pool in bytes
@@ -141,6 +145,22 @@ impl Memory {
                 panic!("This shouldn't be possible!");
             }
         }
+    }
+
+    pub fn get_branch_relative_jump(&mut self, offset: u16) -> isize {
+        // If carry is set then we need to figure out where we are branching to
+        let offset: u16 = self.get_instruction_argument(offset, 1);
+
+        // This may be a 2s complement negative number
+        if offset & 0b1000_0000 == 0b1000_0000 {
+            // 2s complement
+            let magnitude: usize = Utils::get_twos_complement_magnitude(offset.into(), 8);
+            let mut value: isize = magnitude.try_into().unwrap();
+            value = value * -1;
+            return value;
+        }
+
+        return offset.try_into().unwrap();
     }
 }
 

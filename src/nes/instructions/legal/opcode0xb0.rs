@@ -25,10 +25,7 @@
 use crate::nes::architecture::cpu::Cpu;
 use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
-use crate::nes::architecture::utils::Utils;
 use crate::nes::instructions::Opcode;
-
-use std::convert::TryInto;
 
 pub struct Opcode0xb0 {}
 
@@ -46,19 +43,10 @@ impl Opcode for Opcode0xb0 {
             return;
         }
 
-        // If carry is set then we need to figure out where we are branching to
-        let offset: u16 = _memory.get_instruction_argument(_cpu.program_counter, 1);
-
-        // This may be a 2s complement negative number
-        if offset & 0b1000_0000 == 0b1000_0000 {
-            // 2s complement
-            let magnitude: usize = Utils::get_twos_complement_magnitude(offset.into(), 8);
-            let mut value: isize = magnitude.try_into().unwrap();
-            value = value * -1;
-            _cpu.register_add(Register::ProgramCounter, value);
-        } else {
-            _cpu.register_add(Register::ProgramCounter, offset.try_into().unwrap());
-        }
+        _cpu.register_add(
+            Register::ProgramCounter,
+            _memory.get_branch_relative_jump(_cpu.program_counter),
+        );
     }
 }
 
