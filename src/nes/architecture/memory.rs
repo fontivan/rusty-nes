@@ -81,47 +81,39 @@ impl Memory {
         self.raw_memory[offset..(data_length + offset)].copy_from_slice(&data[..data_length]);
     }
 
-    pub fn load_rom_from_cartridge(&mut self, rom_content: String) {
+    pub fn load_rom_from_cartridge(&mut self, rom_content: Vec<u8>) {
         // This should be compliant with the iNES and NES2.0 file format specifications
         // iNES: https://wiki.nesdev.com/w/index.php/INES
         // NES2.0: https://wiki.nesdev.com/w/index.php/NES_2.0
 
         // The header is the first 16 bytes of the rom content
-        let header: String = rom_content[0..16].to_string();
-        let mut raw_header: Vec<u8> = [].to_vec();
-
-        for char in header.chars() {
-            raw_header.push(char as u8);
-        }
 
         // The first three bytes should be 'N' (0x4E), 'E' (0x45), and 'S' (0x53), followed by EOF (0x1A)
         // This is derived from https://wiki.nesdev.com/w/index.php/NES_2.0#Identification
-        assert!(raw_header[0] == 0x4E);
-        assert!(raw_header[1] == 0x45);
-        assert!(raw_header[2] == 0x53);
-        assert!(raw_header[3] == 0x1A);
+        assert!(rom_content[0] == 0x4E);
+        assert!(rom_content[1] == 0x45);
+        assert!(rom_content[2] == 0x53);
+        assert!(rom_content[3] == 0x1A);
 
         let mut nes2: bool = false;
         // The nes 2.0 specification is that from the 7th byte of the header, that bit 2 is clear and bit 3 is set
-        let id_byte: u8 = raw_header[7];
+        let id_byte: u8 = rom_content[7];
         if id_byte & 0b0000_0100 == 0b0000_0000 && id_byte & 0b0000_1000 == 0b0000_1000 {
             nes2 = true;
         };
 
         //TODO: Load the rom properly. This is a temporary hack sourced from Stack Overflow
         // https://stackoverflow.com/questions/46998060/how-do-i-load-nestest-rom/47036424#47036424
-        let rom_data: String = (&rom_content[16..]).to_string();
-        let mut raw_rom_data: Vec<u8> = [].to_vec();
-        for char in rom_data.chars() {
-            raw_rom_data.push(char as u8);
-        }
-        self.write(0x8000, raw_rom_data.clone());
-        self.write(0xC000, raw_rom_data.clone());
+        // Skip copying the header as it is not expected to be in memory
+        let mut data: Vec<u8> = rom_content.clone();
+        data.drain(0..16);
+        self.write(0x8000, data.clone());
+        self.write(0xC000, data.clone());
 
         if nes2 {
-            print!("NES2.0 format detected.")
+            print!("NES2.0 format detected.\n")
         } else {
-            print!("iNES format detected.")
+            print!("iNES format detected.\n")
         }
     }
 

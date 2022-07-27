@@ -71,13 +71,14 @@ impl Nes {
     }
 
     pub fn run(&mut self) {
-        self.dump_memory();
+        // self.dump_memory();
         // Test rom retrived from https://github.com/christopherpow/nes-test-roms/raw/master/other/nestest.nes
         self.cartridge_slot
             .load_cartridge("nestest.nes".to_string());
         self.memory
             .load_rom_from_cartridge(self.cartridge_slot.rom_contents.clone());
         self.cpu.set_nestest_automation();
+        // self.dump_memory();
         loop {
             Cpu::execute_clock_cycle(&mut self.cpu, &mut self.memory);
         }

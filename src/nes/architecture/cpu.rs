@@ -292,13 +292,15 @@ impl Cpu {
     pub fn set_nestest_automation(&mut self) {
         // Automation mode is defined on github
         // https://github.com/christopherpow/nes-test-roms/blob/master/other/nestest.txt#L67
-        self.program_counter = 0x0000_c000;
+        self.program_counter = 0x0c000;
     }
 
     // Execute a clock cycle on the cpu
     pub fn execute_clock_cycle(cpu: &mut Cpu, memory: &mut Memory) {
         // Fetch
         let data: Vec<u8> = memory.read(cpu.program_counter.into(), 1);
+        // let debug: Vec<u8> = memory.read(cpu.program_counter.into(), 1024);
+        // print!("{:?}", debug);
 
         // Increment program counter
         cpu.register_add(Register::ProgramCounter, 1);

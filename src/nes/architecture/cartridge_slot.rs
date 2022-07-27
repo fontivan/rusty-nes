@@ -22,12 +22,13 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use std::fs::File;
-use std::io::Read;
+use std::fs;
+// use std::fs::File;
+// use std::io::Read;
 
 pub struct CartridgeSlot {
     file_path: String,
-    pub rom_contents: String,
+    pub rom_contents: Vec<u8>,
 }
 
 impl CartridgeSlot {
@@ -36,7 +37,7 @@ impl CartridgeSlot {
         // Initialize an empty slot
         let mut cartridge_slot: CartridgeSlot = CartridgeSlot {
             file_path: "".to_string(),
-            rom_contents: "".to_string(),
+            rom_contents: [].to_vec(),
         };
 
         // Load the file
@@ -50,39 +51,14 @@ impl CartridgeSlot {
         // If the path is empty then remove the current cartridge
         if file_path.is_empty() {
             self.file_path = "".to_string();
-            self.rom_contents = "".to_string();
+            self.rom_contents = [].to_vec();
             return;
         }
 
         // Set the path for the cartridge slot
         self.file_path = file_path;
 
-        // Create the file using the provided path
-        let mut opened_file: File;
-
-        match File::open(self.file_path.clone()) {
-            Ok(file) => {
-                opened_file = file;
-            }
-            Err(_) => {
-                panic!("Unable to open file '{0}'.", self.file_path);
-            }
-        }
-
-        // Initialize the string that will store the file content
-        let mut file_content: String = String::new();
-
-        // Read the content from the file into the string
-        match opened_file.read_to_string(&mut file_content) {
-            Ok(_) => {
-                //no-op
-            }
-            Err(_) => {
-                panic!("Unable to read data from file '{0}'.", self.file_path)
-            }
-        }
-
-        // Set the self file content equal to the read data
-        self.rom_contents = file_content;
+        let contents: Vec<u8> = fs::read(self.file_path.clone()).unwrap();
+        self.rom_contents = contents;
     }
 }
