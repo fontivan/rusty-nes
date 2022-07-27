@@ -34,6 +34,28 @@ impl Opcode for Opcode0xd8 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0xd8' is not implemented")
+        // Clear the decimal flag
+        _cpu.clear_d_flag();
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::nes::architecture::cpu::tests::get_test_cpu;
+    use crate::nes::architecture::memory::tests::get_test_memory;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1);
+        cpu.set_d_flag();
+
+        // Execute instruction
+        assert!(cpu.is_d_set());
+        Opcode0xd8::execute(&mut cpu, &mut memory);
+        assert!(!cpu.is_d_set());
     }
 }

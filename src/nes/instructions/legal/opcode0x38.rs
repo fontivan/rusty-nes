@@ -34,6 +34,28 @@ impl Opcode for Opcode0x38 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x38' is not implemented")
+        // Set the carry flag
+        _cpu.set_c_flag();
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::nes::architecture::cpu::tests::get_test_cpu;
+    use crate::nes::architecture::memory::tests::get_test_memory;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1);
+        cpu.clear_c_flag();
+
+        // Execute instruction
+        assert!(!cpu.is_c_set());
+        Opcode0x38::execute(&mut cpu, &mut memory);
+        assert!(cpu.is_c_set());
     }
 }
