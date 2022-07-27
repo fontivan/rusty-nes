@@ -63,16 +63,7 @@ impl Nes {
         }
     }
 
-    fn dump_memory(&mut self) {
-        let memory_size = self.memory.get_size();
-        for i in 0..memory_size {
-            self.memory.write(i, [1].to_vec());
-        }
-        print!("{:?}", self.memory.read(0, memory_size));
-    }
-
     pub fn run(&mut self) {
-        // self.dump_memory();
         // Test rom retrived from https://github.com/christopherpow/nes-test-roms/raw/master/other/nestest.nes
         let current_dir: String = env::current_dir().unwrap().display().to_string();
         self.cartridge_slot
@@ -80,7 +71,6 @@ impl Nes {
         self.memory
             .load_rom_from_cartridge(self.cartridge_slot.rom_contents.clone());
         self.cpu.set_nestest_automation();
-        // self.dump_memory();
         loop {
             Cpu::execute_clock_cycle(&mut self.cpu, &mut self.memory);
         }
