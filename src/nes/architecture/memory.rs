@@ -111,9 +111,9 @@ impl Memory {
         self.write(0xC000, data.clone());
 
         if nes2 {
-            print!("NES2.0 format detected.\n")
+            println!("NES2.0 format detected.")
         } else {
-            print!("iNES format detected.\n")
+            println!("iNES format detected.")
         }
     }
 

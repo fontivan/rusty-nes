@@ -31,6 +31,7 @@ pub mod architecture;
 pub mod controllers;
 pub mod instructions;
 pub mod mappers;
+pub mod region;
 
 pub struct Nes {
     cartridge_slot: CartridgeSlot,
