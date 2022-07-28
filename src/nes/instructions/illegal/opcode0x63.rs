@@ -34,6 +34,6 @@ impl Opcode for Opcode0x63 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x63' is not implemented")
+        // panic!("Instruction '0x63' is not implemented")
     }
 }
