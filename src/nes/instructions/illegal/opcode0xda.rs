@@ -34,6 +34,7 @@ impl Opcode for Opcode0xda {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0xda' is not implemented")
+        // Dynowarz: Destruction of Spondylus (April 1990) uses 1-byte NOPs $DA and $FA on the first level when your dino throws his fist.
+        return;
     }
 }

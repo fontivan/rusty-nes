@@ -34,6 +34,7 @@ impl Opcode for Opcode0xea {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        // No-op
+        // No-op (The official one, though several illegal opcodes are also no-ops.)
+        return;
     }
 }

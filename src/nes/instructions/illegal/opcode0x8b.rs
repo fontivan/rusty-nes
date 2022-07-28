@@ -34,6 +34,7 @@ impl Opcode for Opcode0x8b {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
+        // Gaau Hok Gwong Cheung (Ch) uses $8B (XAA immediate). The game malfunctions after selecting Left from the main menu if that instruction is not emulated.
         panic!("Instruction '0x8b' is not implemented")
     }
 }

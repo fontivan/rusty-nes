@@ -34,6 +34,9 @@ impl Opcode for Opcode0x89 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x89' is not implemented")
+        // Puzznic (all regions) (US release November 1990) uses $89 (a 2-byte NOP).
+        // Infiltrator uses $89 (a 2-byte NOP).
+        // F-117A Stealth Fighter uses $89 (a 2-byte NOP).
+        return;
     }
 }

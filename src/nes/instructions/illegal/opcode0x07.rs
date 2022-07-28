@@ -34,6 +34,7 @@ impl Opcode for Opcode0x07 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
+        // Disney's Aladdin (E) (December 1994) uses $07 (SLO). This is Virgin's port of the Game Boy game, itself a port of the Genesis game, not any of the pirate originals.
         panic!("Instruction '0x07' is not implemented")
     }
 }

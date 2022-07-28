@@ -34,6 +34,7 @@ impl Opcode for Opcode0x80 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x80' is not implemented")
+        // Beauty and the Beast (E) (1994) uses $80 (a 2-byte NOP).[2]
+        return;
     }
 }

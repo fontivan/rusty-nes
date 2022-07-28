@@ -34,6 +34,7 @@ impl Opcode for Opcode0xb3 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
+        //Super Cars (U) (February 1991) uses $B3 (LAX).
         panic!("Instruction '0xb3' is not implemented")
     }
 }
