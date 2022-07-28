@@ -35,7 +35,7 @@ impl Opcode for Opcode0x90 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        // Branch on carry set
+        // Branch on carry clear
 
         // If carry is not set then just add to program counter
         if _cpu.is_c_set() {

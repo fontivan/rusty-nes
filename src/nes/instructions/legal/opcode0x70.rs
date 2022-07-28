@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
 use crate::nes::instructions::Opcode;
 
@@ -34,6 +35,73 @@ impl Opcode for Opcode0x70 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x70' is not implemented")
+        // Branch on overflow set
+
+        // If v flag is not set then just add to program counter
+        if !_cpu.is_v_set() {
+            _cpu.register_add(Register::ProgramCounter, 1);
+            return;
+        }
+
+        _cpu.register_add(
+            Register::ProgramCounter,
+            _memory.get_branch_relative_jump(_cpu.program_counter),
+        );
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::nes::architecture::cpu::tests::get_test_cpu;
+    use crate::nes::architecture::memory::tests::get_test_memory;
+
+    #[test]
+    fn test_taking_positive_branch() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1024);
+        cpu.set_v_flag();
+        cpu.program_counter = 0x01;
+        memory.write(0, [0xb0, 0x05].to_vec());
+
+        // Execute instruction
+        Opcode0x70::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.program_counter, 0x06);
+    }
+
+    #[test]
+    fn test_taking_negative_branch() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1024);
+        cpu.program_counter = 0xf1;
+        cpu.set_v_flag();
+        memory.write(0xf0, [0xb0, 0xf5].to_vec());
+
+        // Execute instruction
+        Opcode0x70::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.program_counter, 0xe6);
+    }
+
+    #[test]
+    fn test_not_taking_branch() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1024);
+        cpu.clear_v_flag();
+        cpu.program_counter = 0xf0;
+        memory.write(0xf0, [0xb0, 0xf5].to_vec());
+
+        // Execute instruction
+        Opcode0x70::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.program_counter, 0xf1);
     }
 }
