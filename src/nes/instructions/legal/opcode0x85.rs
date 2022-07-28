@@ -23,8 +23,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::nes::architecture::cpu::Cpu;
+use crate::nes::architecture::cpu::Register;
 use crate::nes::architecture::memory::Memory;
+use crate::nes::architecture::utils::Utils;
 use crate::nes::instructions::Opcode;
+
+use std::convert::TryInto;
 
 pub struct Opcode0x85 {}
 
@@ -34,6 +38,43 @@ impl Opcode for Opcode0x85 {
     }
 
     fn execute(mut _cpu: &mut Cpu, mut _memory: &mut Memory) {
-        panic!("Instruction '0x85' is not implemented")
+        // Store value from zero paged address into the accumulator
+        let instruction_arg: u16 = _memory.get_instruction_argument(_cpu.program_counter, 1);
+
+        // Increase the program counter
+        _cpu.register_add(Register::ProgramCounter, 1);
+
+        // Get the zero page address
+        let address: u16 = Utils::get_zero_paged_address(instruction_arg.try_into().unwrap(), 0);
+
+        // Get the value from memory
+        let value: u8 = _memory.read(address.into(), 1)[0];
+
+        // Save the value in the accumulator
+        _cpu.accumulator = value;
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::nes::architecture::cpu::tests::get_test_cpu;
+    use crate::nes::architecture::memory::tests::get_test_memory;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut cpu: Cpu = get_test_cpu();
+        let mut memory: Memory = get_test_memory(1024);
+        cpu.program_counter = 0x01;
+        memory.write(0, [0x85, 0x44].to_vec());
+        memory.write(0x44, [0xfa].to_vec());
+
+        // Execute instruction
+        Opcode0x85::execute(&mut cpu, &mut memory);
+
+        // Assert results
+        assert_eq!(cpu.accumulator, 0xfa);
     }
 }
