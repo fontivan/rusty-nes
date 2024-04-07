@@ -24,6 +24,7 @@
 
 use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
+use crate::models::mos6502::Register;
 
 pub struct Opcode0x00 {}
 
@@ -33,6 +34,33 @@ impl Opcode for Opcode0x00 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x00' is not implemented")
+        // Break
+
+        // Increment program counter by one
+        _system.register_add(Register::ProgramCounter, 1);
+
+        // Set interrupt flag
+        _system.set_i_flag();
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        // Execute instruction
+        Opcode0x00::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.program_counter, 0x01);
+        assert!(system.is_i_set());
+        assert_eq!(system.program_counter, 0x01);
     }
 }

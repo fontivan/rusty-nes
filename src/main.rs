@@ -48,7 +48,7 @@ fn nes() {
     );
 
     // Load nestest rom
-    let nestest_rom: Vec<u8> = fs::read("target/nestest.nes").unwrap();
+    let nestest_rom: Vec<u8> = fs::read("build/target/debug/nestest.nes").unwrap();
     write_nes_rom_to_memory(&mut mos6502, nestest_rom);
 
     // Automation mode is defined on github

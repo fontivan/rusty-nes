@@ -26,6 +26,7 @@ mod instructions;
 
 use crate::common::clock::Clock;
 use crate::common::memory::Memory;
+use crate::common::utils::Utils;
 use crate::models::mos6502::instructions::decoder::Decoder;
 use std::convert::TryFrom;
 
@@ -286,6 +287,22 @@ impl Mos6502 {
         return stack_pointer | stack_register_value;
     }
 
+    pub fn get_branch_relative_jump(&mut self, offset: u16) -> isize {
+        // If carry is set then we need to figure out where we are branching to
+        let offset: u16 = self.get_instruction_argument(offset, 1);
+
+        // This may be a 2s complement negative number
+        if offset & 0b1000_0000 == 0b1000_0000 {
+            // 2s complement
+            let magnitude: usize = Utils::get_twos_complement_magnitude(offset.into(), 8);
+            let mut value: isize = magnitude.try_into().unwrap();
+            value = value * -1;
+            return value;
+        }
+
+        return offset.try_into().unwrap();
+    }
+
     pub fn get_instruction_argument(&mut self, offset: u16, size: usize) -> u16 {
         // We expect this to be between 1 and 4 bytes
         assert!(size >= 1);
@@ -327,6 +344,16 @@ impl Mos6502 {
         } else {
             self.clear_n_flag()
         }
+    }
+
+    pub fn stack_push(&mut self, value: u8) {
+        let stack_pointer: u16 = self.get_stack_pointer();
+
+        // Write the value into memory
+        self.memory.write(stack_pointer.into(), [value].to_vec());
+
+        // Decrement the stack register
+        self.register_add(Register::Stack, -1);
     }
 }
 
