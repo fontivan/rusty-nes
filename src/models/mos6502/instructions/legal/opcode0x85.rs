@@ -22,8 +22,10 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use crate::common::utils::Utils;
 use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
+use crate::models::mos6502::Register;
 
 pub struct Opcode0x85 {}
 
@@ -33,6 +35,42 @@ impl Opcode for Opcode0x85 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x85' is not implemented")
+        // Store value from zero paged address into the accumulator
+        let instruction_arg: u16 = _system.get_instruction_argument(_system.program_counter, 1);
+
+        // Increase the program counter
+        _system.register_add(Register::ProgramCounter, 1);
+
+        // Get the zero page address
+        let address: u16 = Utils::get_zero_paged_address(instruction_arg.try_into().unwrap(), 0);
+
+        // Get the value from memory
+        let value: u8 = _system.memory.read(address.into(), 1)[0];
+
+        // Save the value in the accumulator
+        _system.accumulator = value;
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.program_counter = 0x01;
+        system.memory.write(0, [0x85, 0x44].to_vec());
+        system.memory.write(0x44, [0xfa].to_vec());
+
+        // Execute instruction
+        Opcode0x85::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.accumulator, 0xfa);
     }
 }

@@ -114,6 +114,28 @@ impl Utils {
         // Return bitwise and of result and mask
         return result & mask;
     }
+
+    pub fn get_zero_paged_address(index: u8, operand: u8) -> u16 {
+        // First get the absolute address
+        let mut address: u16 = Utils::get_absolute_address(index, operand.into());
+
+        // Zero out the high byte
+        address &= 0b0000_0000_1111_1111;
+
+        // Return the address
+        address
+    }
+
+    pub fn get_absolute_address(index: u8, operand: u16) -> u16 {
+        // Turn the u8 into a u16
+        let mut address: u16 = index.into();
+
+        // Add the operand to address
+        address += operand;
+
+        // Return the address
+        address
+    }
 }
 
 #[cfg(test)]

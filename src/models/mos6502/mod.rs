@@ -346,6 +346,21 @@ impl Mos6502 {
         }
     }
 
+    pub fn stack_pop(&mut self) -> u8 {
+        let stack_pointer: u16 = self.get_stack_pointer();
+
+        // Read the value from memory
+        let value: u8 = self.memory.read(stack_pointer.into(), 1)[0];
+
+        // Clear the value from the stack
+        self.memory.write(stack_pointer.into(), [0x00].to_vec());
+
+        // Increment the stack pointer
+        self.register_add(Register::Stack, 1);
+
+        return value;
+    }
+
     pub fn stack_push(&mut self, value: u8) {
         let stack_pointer: u16 = self.get_stack_pointer();
 

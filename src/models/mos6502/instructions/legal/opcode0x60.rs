@@ -22,6 +22,7 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use crate::common::utils::Utils;
 use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
 
@@ -33,6 +34,41 @@ impl Opcode for Opcode0x60 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x60' is not implemented")
+        // Return from subroutine
+
+        let low_byte: u8 = _system.stack_pop();
+        let high_byte: u8 = _system.stack_pop();
+        let return_address: u16 = Utils::get_u16_from_u8_pair(high_byte, low_byte);
+
+        // The instruction states to return execution to the specified address plus one
+        _system.program_counter = return_address + 1;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.memory.write(0, [0x60].to_vec());
+        system.stack = 0xFC;
+
+        let address = system.get_stack_pointer().into();
+
+        system.memory.write(address, [0x10, 0x44].to_vec());
+
+        // Execute instruction
+        system.program_counter = 0x01;
+        Opcode0x60::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.program_counter, 0x4411);
+        assert_eq!(system.stack, 0xFE);
     }
 }

@@ -24,6 +24,7 @@
 
 use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
+use crate::models::mos6502::Register;
 
 pub struct Opcode0x70 {}
 
@@ -33,6 +34,71 @@ impl Opcode for Opcode0x70 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x70' is not implemented")
+        // Branch on overflow set
+
+        // If v flag is not set then just add to program counter
+        if !_system.is_v_set() {
+            _system.register_add(Register::ProgramCounter, 1);
+            return;
+        }
+
+        let operand = _system.get_branch_relative_jump(_system.program_counter);
+
+        _system.register_add(Register::ProgramCounter, operand);
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_taking_positive_branch() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.set_v_flag();
+        system.program_counter = 0x01;
+        system.memory.write(0, [0xb0, 0x05].to_vec());
+
+        // Execute instruction
+        Opcode0x70::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.program_counter, 0x06);
+    }
+
+    #[test]
+    fn test_taking_negative_branch() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.program_counter = 0xf1;
+        system.set_v_flag();
+        system.memory.write(0xf0, [0xb0, 0xf5].to_vec());
+
+        // Execute instruction
+        Opcode0x70::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.program_counter, 0xe6);
+    }
+
+    #[test]
+    fn test_not_taking_branch() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.clear_v_flag();
+        system.program_counter = 0xf0;
+        system.memory.write(0xf0, [0xb0, 0xf5].to_vec());
+
+        // Execute instruction
+        Opcode0x70::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.program_counter, 0xf1);
     }
 }

@@ -34,7 +34,7 @@ impl Opcode for Opcode0xd0 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        // Branch on zero flag not set
+        // Branch on zero flag clear
 
         // If zero flag is set then just add to program counter
         if _system.is_z_set() {
