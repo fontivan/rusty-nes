@@ -35,10 +35,10 @@ impl Opcode for Opcode0x4c {
 
     fn execute(mut _system: &mut Mos6502) {
         // Jump directly to operand address
-        let address = _system.get_instruction_argument(2);
+        let address = _system.get_instruction_argument(_system.program_counter, 2);
 
         // Write data to program counter
-        _system.program_counter.write(0, address)
+        _system.program_counter = address;
     }
 }
 
@@ -55,12 +55,10 @@ mod tests {
         system.memory.write(0, [0x4c, 0x12, 0x34].to_vec());
 
         // Execute instruction
-        system.program_counter.write(0, [0x01].to_vec());
+        system.program_counter = 0x01;
         Opcode0x4c::execute(&mut system);
 
         // Assert results
-        let pc_data = system.program_counter.read(0, 2);
-        assert_eq!(pc_data[0], 0x12);
-        assert_eq!(pc_data[1], 0x34);
+        assert_eq!(system.program_counter, 0x3412);
     }
 }

@@ -54,11 +54,8 @@ fn nes() {
     // Automation mode is defined on github
     // https://github.com/christopherpow/nes-test-roms/blob/master/other/nestest.txt#L67
     let mut pc_data: Vec<u8> = Vec::new();
-    // Set prpgram counter to 0xc000
-    pc_data.push(0x00);
-    pc_data.push(0xc0);
-
-    mos6502.program_counter.write(0, pc_data);
+    // Set program counter to 0xc000
+    mos6502.program_counter = 0xc000;
 
     // Start the system
     mos6502.run();

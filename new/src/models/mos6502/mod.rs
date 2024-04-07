@@ -27,29 +27,39 @@ mod instructions;
 use crate::common::clock::Clock;
 use crate::common::memory::Memory;
 use crate::models::mos6502::instructions::decoder::Decoder;
+use std::convert::TryFrom;
+
+pub enum Register {
+    Accumulator,
+    Flags,
+    ProgramCounter,
+    Stack,
+    XIndex,
+    YIndex,
+}
 
 pub struct Mos6502 {
-    pub accumulator: Memory,
+    pub accumulator: u8,
     pub clock: Clock,
-    pub flags: Memory,
+    pub flags: u8,
     pub memory: Memory,
-    pub program_counter: Memory,
-    pub stack: Memory,
-    pub x_register: Memory,
-    pub y_register: Memory,
+    pub program_counter: u16,
+    pub stack: u8,
+    pub x_index: u8,
+    pub y_index: u8,
 }
 
 impl Mos6502 {
     pub fn new(memory_size: usize, clock_speed_hz: f64) -> Mos6502 {
         Mos6502 {
-            accumulator: Memory::new(1).unwrap(),
+            accumulator: 0,
             clock: Clock::new(clock_speed_hz),
-            flags: Memory::new(1).unwrap(),
+            flags: 0,
             memory: Memory::new(memory_size).unwrap(),
-            program_counter: Memory::new(2).unwrap(),
-            stack: Memory::new(1).unwrap(),
-            x_register: Memory::new(1).unwrap(),
-            y_register: Memory::new(1).unwrap()
+            program_counter: 0x34,
+            stack: 0xFD,
+            x_index: 0,
+            y_index: 0
         }
     }
 
@@ -58,14 +68,11 @@ impl Mos6502 {
             // Wait for clock cycle
             self.clock.tick();
 
-            // Get address
-            let target_address = self.get_address_from_program_counter();
-
             // Fetch the address from memory
-            let instruction_data: Vec<u8> = self.memory.read(target_address.into(), 1);
+            let instruction_data: Vec<u8> = self.memory.read(self.program_counter.into(), 1);
 
             // Increment program counter
-            self.program_counter.increment_data_at_address(0);
+            self.program_counter = self.program_counter + 1;
 
             // Decode and execute
             Decoder::execute(self, instruction_data[0]);
@@ -75,116 +82,234 @@ impl Mos6502 {
     // Flag bit 0 - Carry
     // Set when the accumulator rolls over from 0xFF to 0x00, or as part of some operations
     pub fn set_c_flag(&mut self) {
-        self.flags.set_bit(0, 0b0000_0001);
+        self.flags |= 0b0000_0001;
     }
 
     pub fn clear_c_flag(&mut self) {
-        self.flags.clear_bit(0, 0b0000_0001);
+        self.flags &= 0b1111_1110;
     }
 
     pub fn is_c_set(&mut self) -> bool {
-        return self.flags.get_bit(0, 0b0000_0001)
+        self.flags & 0b0000_0001 == 0b0000_0001
     }
 
     // Flag bit 1 - Zero
     // Set when the result of most instructions is 0x00
     pub fn set_z_flag(&mut self) {
-        self.flags.set_bit(0, 0b0000_0010);
+        self.flags |= 0b0000_0010;
     }
 
     pub fn clear_z_flag(&mut self) {
-        self.flags.clear_bit(0, 0b0000_0010);
+        self.flags &= 0b1111_1101;
     }
 
     pub fn is_z_set(&mut self) -> bool {
-        return self.flags.get_bit(0, 0b0000_0010)
+        self.flags & 0b0000_0010 == 0b0000_0010
     }
 
     // Flag bit 2 - Interrupt
     // Set when various interrupt methods are called
     pub fn set_i_flag(&mut self) {
-        self.flags.set_bit(0, 0b0000_0100);
+        self.flags |= 0b0000_0100;
     }
 
     pub fn clear_i_flag(&mut self) {
-        self.flags.clear_bit(0, 0b0000_0100);
+        self.flags &= 0b1111_1011;
     }
 
     pub fn is_i_set(&mut self) -> bool {
-        return self.flags.get_bit(0, 0b0000_0100)
+        self.flags & 0b0000_0100 == 0b0000_0100
     }
 
     // Flag bit 3 - Decimal
     pub fn set_d_flag(&mut self) {
-        self.flags.set_bit(0, 0b0000_1000);
+        self.flags |= 0b0000_1000;
     }
 
     pub fn clear_d_flag(&mut self) {
-        self.flags.clear_bit(0, 0b0000_1000);
+        self.flags &= 0b1111_0111;
     }
 
     pub fn is_d_set(&mut self) -> bool {
-        return self.flags.get_bit(0, 0b0000_1000)
+        self.flags & 0b0000_1000 == 0b0000_1000
     }
 
     // Flag bit 4 - Break
     pub fn set_b_flag(&mut self) {
-        self.flags.set_bit(0, 0b0001_0000);
+        self.flags |= 0b0001_0000;
     }
 
     pub fn clear_b_flag(&mut self) {
-        self.flags.clear_bit(0, 0b0001_0000);
+        self.flags &= 0b1110_1111;
     }
 
     pub fn is_b_set(&mut self) -> bool {
-        return self.flags.get_bit(0, 0b0001_0000)
+        self.flags & 0b0001_0000 == 0b0001_0000
     }
 
     // Flag bit 5 - Unused
 
     // Flag bit 6 - Overflow
     pub fn set_v_flag(&mut self) {
-        self.flags.set_bit(0, 0b0100_0000);
+        self.flags |= 0b0100_0000;
     }
 
     pub fn clear_v_flag(&mut self) {
-        self.flags.clear_bit(0, 0b0100_0000);
+        self.flags &= 0b1011_1111;
     }
 
     pub fn is_v_set(&mut self) -> bool {
-        return self.flags.get_bit(0, 0b0100_0000)
+        self.flags & 0b0100_0000 == 0b0100_0000
     }
 
     // Flag bit 7 - Negative
     // Set when the highest bit of the result is also set
     pub fn set_n_flag(&mut self) {
-        self.flags.set_bit(0, 0b1000_0000);
+        self.flags |= 0b1000_0000;
     }
 
     pub fn clear_n_flag(&mut self) {
-        self.flags.clear_bit(0, 0b1000_0000);
+        self.flags &= 0b0111_1111;
     }
 
     pub fn is_n_set(&mut self) -> bool {
-        return self.flags.get_bit(0, 0b1000_0000)
+        self.flags & 0b1000_0000 == 0b1000_0000
     }
 
-    pub fn get_address_from_program_counter(&mut self) -> usize {
-        // Convert the PC data into a memory address
-        let pc_data = self.program_counter.read(0, 2);
-
-        // Convert pc data to an address
-        let target_address = pc_data[0] as usize + ((pc_data[1] as u16) << 8) as usize;
-
-        // Return address as usize
-        return target_address;
+    pub fn register_add(&mut self, register: Register, operand: isize) {
+        match register {
+            Register::Accumulator => {
+                let mut result: isize = self.accumulator.into();
+                result = result + operand;
+                if result > std::u8::MAX.into() {
+                    self.set_v_flag();
+                    result &= 0b0000_0000_1111_1111;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u8::try_from(result) {
+                    Ok(result) => {
+                        self.accumulator = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+            Register::Flags => {
+                panic!("Should not be adding integers to flag register")
+            }
+            Register::ProgramCounter => {
+                let mut result: isize = isize::try_from(self.program_counter).unwrap();
+                result = result + operand;
+                if result > isize::try_from(std::u16::MAX).unwrap() {
+                    self.set_v_flag();
+                    result &= 0x00FF;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u16::try_from(result) {
+                    Ok(result) => {
+                        self.program_counter = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+            Register::Stack => {
+                let mut result: isize = self.stack.into();
+                result = result + operand;
+                if result > std::u8::MAX.into() {
+                    self.set_v_flag();
+                    result &= 0b0000_0000_1111_1111;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u8::try_from(result) {
+                    Ok(result) => {
+                        self.stack = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+            Register::XIndex => {
+                let mut result: isize = self.x_index.into();
+                result = result + operand;
+                if result > std::u8::MAX.into() {
+                    self.set_v_flag();
+                    result &= 0b0000_0000_1111_1111;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u8::try_from(result) {
+                    Ok(result) => {
+                        self.x_index = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+            Register::YIndex => {
+                let mut result: isize = self.y_index.into();
+                result = result + operand;
+                if result > std::u8::MAX.into() {
+                    self.set_v_flag();
+                    result &= 0b0000_0000_1111_1111;
+                }
+                if result < 0 {
+                    result += 0xFF
+                }
+                match u8::try_from(result) {
+                    Ok(result) => {
+                        self.y_index = result;
+                    }
+                    Err(error) => {
+                        std::panic::panic_any(error);
+                    }
+                }
+            }
+        }
     }
 
-    pub fn get_instruction_argument(&mut self, argument_size: usize) -> Vec<u8> {
-        // Instruction arguments can be 1 to 4 bytes and at located at the pc value
-        let target_address = self.get_address_from_program_counter();
-        let result = self.memory.read(target_address, argument_size);
-        return result;
+    pub fn get_stack_pointer(&mut self) -> u16 {
+        // Build the stack pointer from the register and page
+        let mut stack_pointer: u16 = 0x0100;
+        let stack_register_value: u16 = self.stack.into();
+        return stack_pointer | stack_register_value;
+    }
+
+    pub fn get_instruction_argument(&mut self, offset: u16, size: usize) -> u16 {
+        // We expect this to be between 1 and 4 bytes
+        assert!(size >= 1);
+        assert!(size <= 2);
+
+        // First get the program counter and read the data stored after the instruction
+        let data: Vec<u8> = self.memory.read(offset.into(), size);
+
+        match size {
+            1 => {
+                let mut result: u16 = data[0].into();
+                return result.into();
+            }
+            2 => {
+                let mut result: u16 = data[1].into();
+                result <<= 8;
+                let data16: u16 = data[0].into();
+                result |= data16;
+                return result;
+            }
+            _ => {
+                panic!("This shouldn't be possible!");
+            }
+        }
     }
 
     // This function will be called by a large number of instructions to check if the z and n flags should be set
@@ -211,7 +336,7 @@ pub mod tests {
     
     pub fn get_test_mos6502(memory_size: usize, clock_speed_hz: f64) -> Mos6502 {
         let mut system: Mos6502 = Mos6502::new(memory_size, clock_speed_hz);
-        system.program_counter.write(0, [0x00, 0x00].to_vec());
+        system.program_counter = 0x0000;
         return system;
     }
 

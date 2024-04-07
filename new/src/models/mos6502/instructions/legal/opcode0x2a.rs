@@ -37,7 +37,7 @@ impl Opcode for Opcode0x2a {
         // Rotate left on the accumulator register
 
         // Get the value from the accumulator
-        let mut data = _system.accumulator.read(0, 1)[0];
+        let mut data = _system.accumulator;
 
         // Store the highest bit
         let high_bit = data & 0b1000_0000;
@@ -51,7 +51,7 @@ impl Opcode for Opcode0x2a {
         }
 
         // Save the value back in the accumulator
-        _system.accumulator.write(0, [data].to_vec());
+        _system.accumulator = data;
 
         // Save the high bit into the carry
         if high_bit != 0 {
@@ -73,14 +73,14 @@ mod tests {
         // Prep for the test
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
-        system.accumulator.write(0, [0b0101_0101].to_vec());
+        system.accumulator = 0b0101_0101;
         system.clear_c_flag();
 
         // Execute instruction
         Opcode0x2a::execute(&mut system);
 
         // Assert results
-        assert_eq!(system.accumulator.read(0, 1)[0], 0b1010_1010);
+        assert_eq!(system.accumulator, 0b1010_1010);
         assert!(!system.is_c_set());
     }
 
@@ -89,14 +89,14 @@ mod tests {
         // Prep for the test
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
-        system.accumulator.write(0, [0b1101_0101].to_vec());
+        system.accumulator = 0b1101_0101;
         system.clear_c_flag();
 
         // Execute instruction
         Opcode0x2a::execute(&mut system);
 
         // Assert results
-        assert_eq!(system.accumulator.read(0, 1)[0], 0b1010_1010);
+        assert_eq!(system.accumulator, 0b1010_1010);
         assert!(system.is_c_set());
     }
 }
