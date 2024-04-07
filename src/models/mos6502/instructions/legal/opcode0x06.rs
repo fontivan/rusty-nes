@@ -22,8 +22,10 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use crate::common::utils::Utils;
 use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
+use crate::models::mos6502::Register;
 
 pub struct Opcode0x06 {}
 
@@ -33,6 +35,85 @@ impl Opcode for Opcode0x06 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x06' is not implemented")
+        // Arithmetic shift left on a zero page address
+
+        // Get the address offset
+        let argument: u16 = _system.get_instruction_argument(_system.program_counter, 1);
+
+        // Increase PC by amount of bytes read
+        _system.register_add(Register::ProgramCounter, 1);
+
+        // Get the final address in memory
+        let address: u16 = Utils::get_zero_paged_address(0, argument.try_into().unwrap());
+
+        // Read the value
+        let mut value = _system.memory.read(address.into(), 1)[0];
+
+        // The carry would be lose by the bitwise shift below so we need to snag it first
+        let carry = value & 0b1000_0000 == 0b1000_0000;
+
+        // Shift left
+        value <<= 1;
+
+        // Check for one in bit 0
+        if carry {
+            // Set the carry bit
+            _system.set_c_flag();
+        }
+
+        // Check for 0 or negative flags
+        _system.check_result_for_zero_and_negative_flags(value);
+
+        // Write the new data back into memory
+        _system.memory.write(address.into(), [value].to_vec());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_without_carry() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.program_counter = 0x01;
+        system.memory.write(0, [0x06, 0x44].to_vec());
+        system.memory.write(0x44, [0b0101_1010].to_vec());
+
+        // Execute instruction
+        Opcode0x06::execute(&mut system);
+
+        // Assert results
+        let result: u8 = system.memory.read(0x44, 1)[0];
+        assert_eq!(result, 0b1011_0100);
+        assert!(!system.is_c_set());
+        assert!(!system.is_z_set());
+        assert!(system.is_n_set());
+        assert_eq!(system.program_counter, 0x02);
+    }
+
+    #[test]
+    fn test_with_carry() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.program_counter = 0x01;
+        system.memory.write(0, [0x06, 0x44].to_vec());
+        system.memory.write(0x44, [0b1101_1010].to_vec());
+
+        // Execute instruction
+        Opcode0x06::execute(&mut system);
+
+        // Assert results
+        let result: u8 = system.memory.read(0x44, 1)[0];
+        assert_eq!(result, 0b1011_0100);
+        assert!(system.is_c_set());
+        assert!(!system.is_z_set());
+        assert!(system.is_n_set());
+        assert_eq!(system.program_counter, 0x02);
     }
 }

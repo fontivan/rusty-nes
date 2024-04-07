@@ -33,6 +33,65 @@ impl Opcode for Opcode0xa8 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0xa8' is not implemented")
+        // Transfer from the accumulator to the y index
+        _system.y_index = _system.accumulator;
+
+        _system.check_result_for_zero_and_negative_flags(_system.y_index)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_no_flags() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.accumulator = 0x0F;
+
+        // Execute instruction
+        Opcode0xa8::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0x0F);
+        assert!(!system.is_z_set());
+        assert!(!system.is_n_set());
+    }
+
+    #[test]
+    fn test_n_flag() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.accumulator = 0xF0;
+
+        // Execute instruction
+        Opcode0xa8::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0xF0);
+        assert!(!system.is_z_set());
+        assert!(system.is_n_set());
+    }
+
+    #[test]
+    fn test_z_flag() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.y_index = 0x01;
+        system.accumulator = 0x00;
+
+        // Execute instruction
+        Opcode0xa8::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0x00);
+        assert!(system.is_z_set());
+        assert!(!system.is_n_set());
     }
 }

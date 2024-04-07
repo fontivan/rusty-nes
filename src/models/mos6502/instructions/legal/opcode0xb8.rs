@@ -33,6 +33,27 @@ impl Opcode for Opcode0xb8 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0xb8' is not implemented")
+        // Clear the overflow flag
+        _system.clear_v_flag();
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.set_v_flag();
+
+        // Execute instruction
+        assert!(system.is_v_set());
+        Opcode0xb8::execute(&mut system);
+        assert!(!system.is_v_set());
     }
 }

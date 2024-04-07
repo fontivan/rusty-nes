@@ -24,6 +24,7 @@
 
 use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
+use crate::models::mos6502::Register;
 
 pub struct Opcode0xc8 {}
 
@@ -33,6 +34,67 @@ impl Opcode for Opcode0xc8 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0xc8' is not implemented")
+        // Increment the y index
+        _system.register_add(Register::YIndex, 1);
+
+        _system.check_result_for_zero_and_negative_flags(_system.y_index)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_no_flags() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.y_index = 0x0F;
+
+        // Execute instruction
+        Opcode0xc8::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0x10);
+        assert!(!system.is_z_set());
+        assert!(!system.is_n_set());
+        assert!(!system.is_v_set());
+    }
+
+    #[test]
+    fn test_n_flag() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.y_index = 0xF1;
+
+        // Execute instruction
+        Opcode0xc8::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0xF2);
+        assert!(!system.is_z_set());
+        assert!(system.is_n_set());
+        assert!(!system.is_v_set());
+    }
+
+    #[test]
+    fn test_z_flag() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.y_index = 0xFF;
+
+        // Execute instruction
+        Opcode0xc8::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0x00);
+        assert!(system.is_z_set());
+        assert!(!system.is_n_set());
+        assert!(system.is_v_set());
     }
 }

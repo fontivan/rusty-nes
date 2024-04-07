@@ -24,6 +24,7 @@
 
 use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
+use crate::models::mos6502::Register;
 
 pub struct Opcode0x88 {}
 
@@ -33,6 +34,83 @@ impl Opcode for Opcode0x88 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x88' is not implemented")
+        // Decrement the y index
+        _system.register_add(Register::YIndex, -1);
+
+        _system.check_result_for_zero_and_negative_flags(_system.y_index)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_no_flags() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.y_index = 0x0F;
+
+        // Execute instruction
+        Opcode0x88::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0x0E);
+        assert!(!system.is_z_set());
+        assert!(!system.is_n_set());
+    }
+
+    #[test]
+    fn test_n_flag() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.y_index = 0xF1;
+
+        // Execute instruction
+        Opcode0x88::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0xF0);
+        assert!(!system.is_z_set());
+        assert!(system.is_n_set());
+    }
+
+    #[test]
+    fn test_z_flag() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.y_index = 0x01;
+
+        // Execute instruction
+        Opcode0x88::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0x00);
+        assert!(system.is_z_set());
+        assert!(!system.is_n_set());
+    }
+
+    #[test]
+    fn test_underflow() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.y_index = 0x00;
+
+        // Execute instruction
+        // This is intentionally run three times
+        Opcode0x88::execute(&mut system);
+        Opcode0x88::execute(&mut system);
+        Opcode0x88::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.y_index, 0xFC);
+        assert!(!system.is_z_set());
+        assert!(system.is_n_set());
     }
 }

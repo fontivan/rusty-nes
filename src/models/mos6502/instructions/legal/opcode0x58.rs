@@ -33,6 +33,26 @@ impl Opcode for Opcode0x58 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x58' is not implemented")
+        _system.clear_i_flag();
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.set_i_flag();
+
+        // Execute instruction
+        assert!(system.is_i_set());
+        Opcode0x58::execute(&mut system);
+        assert!(!system.is_i_set());
     }
 }

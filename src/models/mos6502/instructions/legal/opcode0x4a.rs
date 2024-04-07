@@ -33,6 +33,66 @@ impl Opcode for Opcode0x4a {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x4a' is not implemented")
+        // Fetch the rightmost bit
+        let carry: bool = _system.accumulator & 0b0000_0001 == 0b0000_0001;
+
+        // Rotate the bits in the accumlator to the right by 1 bit
+        _system.accumulator >>= 1;
+
+        // If data is now zero, then set the zero flag high
+        if _system.accumulator == 0 {
+            _system.set_z_flag();
+        } else {
+            _system.clear_z_flag();
+        }
+
+        // Set carry flag to the value of the rightmost bit
+        if carry {
+            _system.set_c_flag();
+        } else {
+            _system.clear_c_flag();
+        }
+
+        // Shift right inserts a 0 into bit 7, so N will always be cleared
+        _system.clear_n_flag();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_without_carry() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.accumulator = 0b1100_0110;
+        system.clear_c_flag();
+
+        // Execute instruction
+        Opcode0x4a::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.accumulator, 0b0110_0011);
+        assert!(!system.is_c_set());
+    }
+
+    #[test]
+    fn test_with_carry() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.accumulator = 0b1100_0011;
+        system.clear_c_flag();
+
+        // Execute instruction
+        Opcode0x4a::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.accumulator, 0b0110_0001);
+        assert!(system.is_c_set());
     }
 }

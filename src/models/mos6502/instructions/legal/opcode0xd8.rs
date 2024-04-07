@@ -33,6 +33,27 @@ impl Opcode for Opcode0xd8 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0xd8' is not implemented")
+        // Clear the decimal flag
+        _system.clear_d_flag();
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.set_d_flag();
+
+        // Execute instruction
+        assert!(system.is_d_set());
+        Opcode0xd8::execute(&mut system);
+        assert!(!system.is_d_set());
     }
 }

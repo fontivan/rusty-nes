@@ -24,6 +24,7 @@
 
 use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
+use crate::models::mos6502::Register;
 
 pub struct Opcode0x84 {}
 
@@ -33,6 +34,40 @@ impl Opcode for Opcode0x84 {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x84' is not implemented")
+        // Store immediate value into x register
+
+        // Get the value from memory
+        let value: u8 = _system
+            .get_instruction_argument(_system.program_counter, 1)
+            .try_into()
+            .unwrap();
+
+        // Add one to the program counter
+        _system.register_add(Register::ProgramCounter, 1);
+
+        // Save the value to the x register
+        _system.y_index = value;
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_execute() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.memory.write(0, [0x55].to_vec());
+
+        // Execute instruction
+        Opcode0x84::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.program_counter, 0x01);
+        assert_eq!(system.y_index, 0x55);
     }
 }

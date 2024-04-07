@@ -33,6 +33,66 @@ impl Opcode for Opcode0x0a {
     }
 
     fn execute(mut _system: &mut Mos6502) {
-        panic!("Instruction '0x0a' is not implemented")
+        // Arithmetic shift left on the accumulator register
+
+        // Get the value from the accumulator
+        let mut value = _system.accumulator;
+
+        // Get the high bit from the value
+        let high_bit = value & 0b1000_0000;
+
+        // Shift the value
+        value <<= 1;
+
+        // Save the value back to the accumulator
+        _system.accumulator = value;
+
+        // Save the high bit into the carry
+        if high_bit != 0 {
+            _system.set_c_flag();
+        } else {
+            _system.clear_c_flag();
+        }
+
+        _system.check_result_for_zero_and_negative_flags(value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::models::mos6502::tests::get_test_mos6502;
+
+    #[test]
+    fn test_without_carry() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.accumulator = 0b0101_0101;
+        system.clear_c_flag();
+
+        // Execute instruction
+        Opcode0x0a::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.accumulator, 0b1010_1010);
+        assert!(!system.is_c_set());
+    }
+
+    #[test]
+    fn test_with_carry() {
+        // Prep for the test
+        let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
+
+        system.accumulator = 0b1101_0101;
+        system.clear_c_flag();
+
+        // Execute instruction
+        Opcode0x0a::execute(&mut system);
+
+        // Assert results
+        assert_eq!(system.accumulator, 0b1010_1010);
+        assert!(system.is_c_set());
     }
 }
