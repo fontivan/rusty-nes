@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MIT License
 //
-// Copyright (c) 2021 fontivan
+// Copyright (c) 2021-2024 fontivan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,8 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use crate::models::mos6502::Mos6502;
 use crate::models::mos6502::instructions::Opcode;
-
+use crate::models::mos6502::Mos6502;
 
 pub struct Opcode0xa4 {}
 

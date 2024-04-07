@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MIT License
 //
-// Copyright (c) 2024 fontivan
+// Copyright (c) 2021-2024 fontivan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ fn nes() {
         // Memory size
         1024 * 1000 * 2 + 1024 * 1000 * 1000,
         // Clock speed
-        236250000.0 / 11.0
+        236250000.0 / 11.0,
     );
 
     // Load nestest rom
@@ -61,38 +61,38 @@ fn nes() {
     mos6502.run();
 }
 
-fn write_nes_rom_to_memory(system: &mut Mos6502, rom_content: Vec<u8>){
-        // This should be compliant with the iNES and NES2.0 file format specifications
-        // iNES: https://wiki.nesdev.com/w/index.php/INES
-        // NES2.0: https://wiki.nesdev.com/w/index.php/NES_2.0
+fn write_nes_rom_to_memory(system: &mut Mos6502, rom_content: Vec<u8>) {
+    // This should be compliant with the iNES and NES2.0 file format specifications
+    // iNES: https://wiki.nesdev.com/w/index.php/INES
+    // NES2.0: https://wiki.nesdev.com/w/index.php/NES_2.0
 
-        // The header is the first 16 bytes of the rom content
+    // The header is the first 16 bytes of the rom content
 
-        // The first three bytes should be 'N' (0x4E), 'E' (0x45), and 'S' (0x53), followed by EOF (0x1A)
-        // This is derived from https://wiki.nesdev.com/w/index.php/NES_2.0#Identification
-        assert!(rom_content[0] == 0x4E);
-        assert!(rom_content[1] == 0x45);
-        assert!(rom_content[2] == 0x53);
-        assert!(rom_content[3] == 0x1A);
+    // The first three bytes should be 'N' (0x4E), 'E' (0x45), and 'S' (0x53), followed by EOF (0x1A)
+    // This is derived from https://wiki.nesdev.com/w/index.php/NES_2.0#Identification
+    assert!(rom_content[0] == 0x4E);
+    assert!(rom_content[1] == 0x45);
+    assert!(rom_content[2] == 0x53);
+    assert!(rom_content[3] == 0x1A);
 
-        let mut nes2: bool = false;
-        // The nes 2.0 specification is that from the 7th byte of the header, that bit 2 is clear and bit 3 is set
-        let id_byte: u8 = rom_content[7];
-        if id_byte & 0b0000_0100 == 0b0000_0000 && id_byte & 0b0000_1000 == 0b0000_1000 {
-            nes2 = true;
-        };
+    let mut nes2: bool = false;
+    // The nes 2.0 specification is that from the 7th byte of the header, that bit 2 is clear and bit 3 is set
+    let id_byte: u8 = rom_content[7];
+    if id_byte & 0b0000_0100 == 0b0000_0000 && id_byte & 0b0000_1000 == 0b0000_1000 {
+        nes2 = true;
+    };
 
-        //TODO: Load the rom properly. This is a temporary hack sourced from Stack Overflow
-        // https://stackoverflow.com/questions/46998060/how-do-i-load-nestest-rom/47036424#47036424
-        // Skip copying the header as it is not expected to be in memory
-        let mut data: Vec<u8> = rom_content.clone();
-        data.drain(0..16);
-        system.memory.write(0x8000, data.clone());
-        system.memory.write(0xC000, data.clone());
+    //TODO: Load the rom properly. This is a temporary hack sourced from Stack Overflow
+    // https://stackoverflow.com/questions/46998060/how-do-i-load-nestest-rom/47036424#47036424
+    // Skip copying the header as it is not expected to be in memory
+    let mut data: Vec<u8> = rom_content.clone();
+    data.drain(0..16);
+    system.memory.write(0x8000, data.clone());
+    system.memory.write(0xC000, data.clone());
 
-        if nes2 {
-            println!("NES2.0 format detected.")
-        } else {
-            println!("iNES format detected.")
-        }
+    if nes2 {
+        println!("NES2.0 format detected.")
+    } else {
+        println!("iNES format detected.")
+    }
 }

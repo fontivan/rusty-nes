@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MIT License
 //
-// Copyright (c) 2024 fontivan
+// Copyright (c) 2021-2024 fontivan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,18 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-use std::time::SystemTime;
 use std::convert::TryInto;
+use std::time::SystemTime;
 
 pub struct Utils;
 
 impl Utils {
-
     pub fn get_current_time_in_nanoseconds() -> u128 {
-        let duration_since_epoch = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+        let duration_since_epoch = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap();
         let timestamp_nanos = duration_since_epoch.as_nanos(); // u128
-        return timestamp_nanos
+        return timestamp_nanos;
     }
 
     pub fn get_u32_from_u16_pair(high_bytes: u16, low_bytes: u16) -> u32 {
@@ -113,7 +114,6 @@ impl Utils {
         // Return bitwise and of result and mask
         return result & mask;
     }
-
 }
 
 #[cfg(test)]

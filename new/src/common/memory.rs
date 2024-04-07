@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MIT License
 //
-// Copyright (c) 2024 fontivan
+// Copyright (c) 2021-2024 fontivan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -300,7 +300,7 @@ pub mod tests {
         memory.set_bit(0, bitmask);
 
         // Verify the result is as expected
-        assert_eq!(memory.read(0, 1)[0], 255);    
+        assert_eq!(memory.read(0, 1)[0], 255);
     }
 
     #[test]
@@ -340,7 +340,7 @@ pub mod tests {
 
         // Increment data at address
         memory.increment_data_at_address(0);
-    
+
         // Verify result
         assert_eq!(memory.read(0, 1)[0], 129);
     }
@@ -358,7 +358,7 @@ pub mod tests {
 
         // Increment data at address
         memory.decrement_data_at_address(0);
-    
+
         // Verify result
         assert_eq!(memory.read(0, 1)[0], 127);
     }

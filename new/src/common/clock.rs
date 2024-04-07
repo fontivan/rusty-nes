@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MIT License
 //
-// Copyright (c) 2024 fontivan
+// Copyright (c) 2021-2024 fontivan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,14 +23,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use crate::common::utils::Utils;
-use std::{thread, time};
 use std::convert::TryInto;
+use std::{thread, time};
 
 pub struct Clock {
     // The clock rate in Hz
     cycle_period_nanoseconds: u128,
     // The last tick unix epoch in nanoseconds
-    last_tick_nanoseconds: u128
+    last_tick_nanoseconds: u128,
 }
 
 impl Clock {
@@ -38,7 +38,7 @@ impl Clock {
         let tick_time = 1000000000.0 / clock_speed_hz;
         Clock {
             cycle_period_nanoseconds: tick_time as u128,
-            last_tick_nanoseconds: Utils::get_current_time_in_nanoseconds()
+            last_tick_nanoseconds: Utils::get_current_time_in_nanoseconds(),
         }
     }
 
@@ -56,7 +56,9 @@ impl Clock {
 
         // Otherwise we want to sleep until the target time
         let sleep_time_nanoseconds = target_time - current_time;
-        thread::sleep(time::Duration::from_nanos(sleep_time_nanoseconds.try_into().unwrap()));
-        return
+        thread::sleep(time::Duration::from_nanos(
+            sleep_time_nanoseconds.try_into().unwrap(),
+        ));
+        return;
     }
 }

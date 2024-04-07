@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MIT License
 //
-// Copyright (c) 2021 fontivan
+// Copyright (c) 2021-2024 fontivan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,9 @@
 // SOFTWARE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use crate::models::mos6502::instructions::Opcode;
 use crate::models::mos6502::Mos6502;
 use crate::models::mos6502::Register;
-use crate::models::mos6502::instructions::Opcode;
 use std::convert::TryInto;
 
 pub struct Opcode0x86 {}
@@ -47,7 +47,7 @@ impl Opcode for Opcode0x86 {
         _system.register_add(Register::ProgramCounter, 1);
 
         // Save the value to the x register
-        _system.x_index = value;    
+        _system.x_index = value;
     }
 }
 

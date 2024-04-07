@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MIT License
 //
-// Copyright (c) 2024 fontivan
+// Copyright (c) 2021-2024 fontivan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,7 @@ impl Mos6502 {
             program_counter: 0x34,
             stack: 0xFD,
             x_index: 0,
-            y_index: 0
+            y_index: 0,
         }
     }
 
@@ -333,7 +333,7 @@ impl Mos6502 {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    
+
     pub fn get_test_mos6502(memory_size: usize, clock_speed_hz: f64) -> Mos6502 {
         let mut system: Mos6502 = Mos6502::new(memory_size, clock_speed_hz);
         system.program_counter = 0x0000;
@@ -341,7 +341,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn test_c_flag(){
+    pub fn test_c_flag() {
         // Get a system
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
@@ -362,7 +362,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn test_z_flag(){
+    pub fn test_z_flag() {
         // Get a system
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
@@ -383,7 +383,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn test_i_flag(){
+    pub fn test_i_flag() {
         // Get a system
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
@@ -404,7 +404,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn test_d_flag(){
+    pub fn test_d_flag() {
         // Get a system
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
@@ -425,7 +425,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn test_b_flag(){
+    pub fn test_b_flag() {
         // Get a system
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
@@ -446,7 +446,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn test_v_flag(){
+    pub fn test_v_flag() {
         // Get a system
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
@@ -467,7 +467,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn test_n_flag(){
+    pub fn test_n_flag() {
         // Get a system
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
