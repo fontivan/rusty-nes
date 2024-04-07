@@ -55,7 +55,7 @@ mod tests {
     use crate::models::mos6502::tests::get_test_mos6502;
 
     #[test]
-    fn test_execute() {
+    fn test_taking_positive_branch() {
         // Prep for the test
         let mut system: Mos6502 = get_test_mos6502(1024, 1000000.0);
 
